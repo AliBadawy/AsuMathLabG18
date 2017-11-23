@@ -27,7 +27,7 @@ This is a Matrix project writen in C++. The aim of the software is to take mathm
     ○ Do not crash for invalid input.
 
 
-#### Inputs Examples : 
+#### Input Examples : 
 > A = [1.4 2.2 3.2; 4.4 5.4 6.4; 3.3 4.2 2.2];
 
 > B = [1.5 4.1 5.4; 3.1 4.2 1.2; 3.2 4.3 2.2];
