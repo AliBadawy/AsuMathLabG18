@@ -1,8 +1,9 @@
 
 #include<stdio.h>
-
+#include <sstream>
 #include "Matrix.h"
-#include <iomanip>
+#include <iomanip> 
+#include <string>
 
 /************START CONSTRUCTORS*******************/
 double** twoDArray = NULL;
@@ -477,6 +478,7 @@ Matrix* Matrix::inverse(){
     double det = this->determinant();
     if (det==0)throw("Matrix has no inverse.");
     det = 1.0 / det;
+	//cout<<"1/det= "<<det<<endl;
     Matrix* temp = new Matrix;
     temp->setSize(this->rows,this->columns);
     Matrix* temp2 = new Matrix;
@@ -531,6 +533,18 @@ Matrix* Matrix::cofactor(){     //el plus wel minus hattwaza3 3ala el elements
     return temp;
 }
 
+void print(double** a,int n)
+{
+	for(int i=0;i<n;i++)
+	{
+		for(int j=0;j<n;j++)
+		{
+			cout<<a[i][j]<<"	";
+		}
+		cout<<endl;
+	}
+	cout<<"===================="<<endl;
+}
 double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
     //di halet el determinant el tabee3y elly ana bas 3ayz keyamo
     if(!this->is_square())throw("Dimensions Error (Determinant).");
@@ -539,134 +553,196 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
         else if(this->columns == 2)
                 return ((this->twoDArray[0][0])*(this->twoDArray[1][1]) - (this->twoDArray[1][0])*(this->twoDArray[0][1]));
         else{   //Determinant
-            /**handling all row zero of all col zero**/
-            bool allZero = false;
-            for(size_t i = 0 ; i< this->rows ; i++){
-                allZero = true;
-                for(size_t j = 0 ; j<this->columns; j ++){
-                    if(this->twoDArray[i][j]!=0){
-                        allZero = false;
-                        break;
-                    }
-                }
-                if(allZero) return 0.0;
-            }
-            for(size_t j = 0 ;j< this->columns ; j++){
-                allZero = true;
-                for(size_t i = 0 ; i<this->rows; i ++){
-                    if(this->twoDArray[i][j]!=0){
-                        allZero = false;
-                        break;
-                    }
-                }
-                if(allZero) return 0.0;
-            }
+		
+				double det =1;
+			int n = this->rows;
+			double**a = new double*[n];
+			for(int i =0;i<n;i++)
+				a[i] = new double[n];
 
-            /**handle triangular matrix**/
-            double det = 1;
-            for(size_t i = 0 ;i< this->rows ; i++){
-                allZero = true;
-                for(size_t j = 0 ; j<this->columns; j ++){
-                    if(i>j && this->twoDArray[i][j]!=0){
-                        allZero = false;
-                        break;
-                    }
-                }
-                continue;
-            }
-            if(allZero){
-                for(size_t i = 0;i<this->rows ;i++){
-                    for(size_t j = 0; j<this->columns ; j++){
-                        if(i == j) {
-                            det *= this->twoDArray[i][j];
-                            break;
-                        }
-                    }
-                }
-                return det;
-            }
+			//filling a[][]
 
-            /**handling first row has a zero element **/
-            Matrix *temp = new Matrix;
-            temp->copyMatrix(this);
-            unsigned int swappedRow = 1;
-            for(size_t j = 0; j< temp->columns;j++){
-                if(temp->twoDArray[0][j]==0){
-                    temp->swapRows(0,swappedRow);
-                    det = 0 - det;
-                    j = -1;
-                    swappedRow++;
-                    continue;
-                }
-            }
+			for(int i =0;i<n;i++)
+			{
+				for(int j=0;j<n;j++)
+				{
+					a[i][j] = this->twoDArray[i][j];
+				}
+				
+			}
 
-            /*make first column = 0 in every row*/
-            for(size_t i = 1;i<temp->rows;i++){
-                double k = temp->twoDArray[i][0]/ temp->twoDArray[0][0];
-                for(size_t j = 0;j<temp->columns;j++){
-                    temp->twoDArray[i][j] -= (k*temp->twoDArray[0][j]);
-                    temp->eliminateFloats(i,j);
-                }
-            }
-            double swaps = 0;
-            double tempSwaps = 0;
-            swaps += temp->handleZeroPivot();
-            for(size_t i = 1;i<temp->rows;i++){
-                swaps += tempSwaps;
-                tempSwaps = 0;
-                double k = 0;
-                for(size_t j = 0;j<temp->columns;j++){
-                    if(i>j && temp->twoDArray[i][j]!=0){
-                        k = temp->twoDArray[i][j]/temp->twoDArray[i-1][j];
-                        for(size_t j = 0;j<temp->columns;j++){
-                            temp->twoDArray[i][j] -= (k*temp->twoDArray[i-1][j]);
-                            temp->eliminateFloats(i,j);
-                        }
-                        tempSwaps+= temp->handleZeroPivot();
-                        if(tempSwaps>0)i--;
-                        break;
-                    }
-                }
-            }
 
-            /**last check**/
-            bool done = true;
-            for(size_t i = 0;i<temp->rows;i++)
-                for(size_t j = 0;j<temp->columns;j++){
-                    if(i>j && temp->twoDArray[i][j]!=0) done = false;
-                    else if(i == j) {
-                        det *= temp->twoDArray[i][j];
-                        break;
-                    }
-                }
-            if(done){
-                if(swaps == 0); //skip
-                else{
-                    for(size_t i = 0 ; i<swaps;i++)
-                        det = 0 - det;
-                }
-                if(det == 0) det = fabs(det);
-                return det;
+			//check if tri of zeros
+			int zero_tri_flag=0;
 
-            }
-            else temp->printMatrix();
-        }
+				for(int i=0;i<n;i++)
+				{
+					for(int j=0;j<i;j++)
+					{
+						if(a[i][j]!=0 && a[i][j]!=-0)
+						{
+							zero_tri_flag = 1; 
+							break;
+
+						}
+					}
+					if(zero_tri_flag == 1)break;
+				}
+
+				if(zero_tri_flag == 0)
+				{
+					for(int i =0;i<n;i++)
+					{
+						det = det * a[i][i];
+					}
+					return det;
+				}
+
+				else 
+				{
+					int col_piv_flag =0;
+					zero_tri_flag = 0;
+					
+					//pivot
+					for(int i=0;i<n;i++)
+					{
+						
+						int in_while_flag=0;
+						if(a[i][i]==0||a[i][i]==-0)
+						{
+							in_while_flag = 1;
+							//swap with the lower row
+							
+							for(int f= i;f<n;f++)
+							{
+								if(a[f][i]!=0 && a[f][i]!=-0)
+								{
+									
+									for(int j=0;j<n;j++)
+									{
+										double temp;
+										temp = a[f][j];
+										a[f][j]=a[i][j];
+										a[i][j] = temp;
+									}
+									
+									col_piv_flag=1;
+									break;
+								}
+								
+							}
+							det = det *-1;
+							int zero_tri_flag1=0;
+							for(int x =0;x<n;x++)
+							{
+								for(int y =0;y<x;y++)
+								{
+									if(a[x][y]!=0 && a[x][y]!=-0)
+									{
+										zero_tri_flag1 = 1;
+										break;
+									}
+								}
+								if(zero_tri_flag1==1)break;
+							}
+							if(zero_tri_flag1==0)
+							{
+								for(int j =0;j<n;j++)
+								{
+									det = det * a[j][j];
+								}
+
+
+								return det;
+							}
+							zero_tri_flag1 = 0;
+						}
+
+
+
+						if(col_piv_flag ==0 && in_while_flag==1)
+						{
+							in_while_flag=0;
+							col_piv_flag=1;
+							det =0;
+							return det;
+						}
+						col_piv_flag=0;
+						in_while_flag=0;
+
+
+						//making pivot =1
+						det = det * a[i][i];
+						
+						double temp2=a[i][i];
+						for(int j =i;j<n;j++)
+						{
+							a[i][j] = a[i][j]/temp2;
+						}
+//amsek kol el rows ely t7t el i  w adrab el row bta3 el pivot fel elemnt ely ta7t el pivot a[i+1][i] w aminuso meno
+						for(int k=i+1;k<n;k++)
+						{
+							double temp = a[k][i];
+							for(int j =i;j<n;j++)
+							{
+								a[k][j]=a[k][j] - temp * a[i][j];
+							}
+						}
+						
+						
+						
+						//since change in matrix therefore check for zero tri
+						
+					    int zero_tri_flag2=0;
+
+						for(int x =0;x<n;x++)
+							{
+								for(int y =0;y<x;y++)
+								{
+									if(a[x][y]!=0 && a[x][y]!=-0)
+									{
+										zero_tri_flag2 = 1;
+										break;
+									}
+								}
+								if(zero_tri_flag2==1)break;
+							}
+							if(zero_tri_flag2==0)
+							{
+								for(int j =0;j<n;j++)
+								{
+									det = det * a[j][j];
+								}
+								return det;
+							}
+
+							zero_tri_flag2 =0;
+					}
+
+					
+
+				}
+
+
+
+			}
+
     }
     //di halet el determinant bta3 el submatrix 3ashan akamel beh el inverse
     else{
         Matrix* temp = new Matrix;
         temp->setSize((this->rows)-1,(this->columns)-1);
-		for(size_t i=0;i<temp->rows;i++)
-			for(size_t j=0;j<temp->columns;j++)
+		
+		for(int i=0;i<temp->rows;i++)
+			for(int j=0;j<temp->columns;j++)
 			{
-
-				unsigned int x = i<posRow? i:i+1;
-				unsigned int y = j<posCol? j:i+1;
-				//cout<<posRow<<"  "<<posRow<<"  "<<x<<"  "<<y<<endl;
+				
+				int x = i<posRow? i:i+1;
+				int y = j<posCol?j:j+1;
 				temp->twoDArray[i][j]=this->twoDArray[x][y];
 			}
-
-       /* size_t subRow=0;
+	/*	
+        size_t subRow=0;
         for(size_t i=0;i<this->rows;i++){
             size_t subCol=0;
             if(i==posRow)continue;
@@ -676,8 +752,8 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
             }
             subRow++;
         }*/
+		
         return temp->determinant();
-
     }
 }
 
@@ -695,48 +771,6 @@ void Matrix::eye(unsigned int rows/*=0*/, unsigned int columns/*=0*/){
     }
 }
 
-void Matrix::swapRows(unsigned int row1 , unsigned int row2){
-    if(row1 < 0 || row1 >this->rows-1 || row2 < 0 || row2 >this->rows-1)
-        throw("Error Swaping.");
-    for(size_t j = 0; j < this->columns ; j++){
-        double temp = 0;
-        temp = this->twoDArray[row1][j];
-        this->twoDArray[row1][j]= this->twoDArray[row2][j];
-        this->twoDArray[row2][j]= temp;
-    }
-}
-
-void Matrix::swapCols(unsigned int col1 , unsigned int col2){
-    if(col1 < 0 || col1 >this->columns-1 || col2 < 0 || col2 >this->columns-1)
-        throw("Error Swaping.");
-    for(size_t i = 0; i < this->rows ; i++){
-        double temp = 0;
-        temp = this->twoDArray[i][col1];
-        this->twoDArray[i][col1]= this->twoDArray[i][col2];
-        this->twoDArray[i][col2]= temp;
-    }
-}
-
-double Matrix::handleZeroPivot(){
-    unsigned int maxNumZeros = 0,maxZerosIndex=-1,swaps=0;
-    for(size_t i = 1;i<this->rows;i++){
-        unsigned int numZeros = 0;
-        for(size_t j = 0;j<this->columns;j++){
-            if(i>=j && this->twoDArray[i][j]==0) numZeros++;
-            else break;
-        }
-        if(maxNumZeros>numZeros){
-            this->swapRows(i,maxZerosIndex);
-            maxZerosIndex = i;
-            swaps++;
-        }
-        else{
-            maxNumZeros = numZeros;
-            maxZerosIndex = i;
-        }
-    }
-    return swaps;
-}
 /*********************START SUBMATRIX************************/
 Matrix* Matrix::subMatrix(string boundaries){
     if(this->notMatrix)throw("Cannot use this function on a scalar value.");
@@ -871,6 +905,11 @@ Matrix* Matrix::subMatrix(string boundaries){
 //
 //}
 
+std::string Converttostring (float number){
+    std::ostringstream buff;
+    buff<<fixed<<setprecision(2)<<number;
+    return buff.str();   
+}
 void Matrix::printMatrix(bool name/*=true*/,unsigned int num_equal/*=0*/, const vector<string>&arrayOfNames){
 
 	if(name == false){
@@ -934,7 +973,7 @@ void Matrix::printMatrix(bool name/*=true*/,unsigned int num_equal/*=0*/, const 
                     char temp[20];
                     sprintf(temp,"%g",this->twoDArray[i][j]);
                     unsigned int outputLen = strlen(temp);
-
+					
                     printf("%g",this->twoDArray[i][j]);
 
                     // printing no. of spaces equal to the size of the longest matrix - size of displayed matrix + 3 as a tolerance
@@ -948,7 +987,205 @@ void Matrix::printMatrix(bool name/*=true*/,unsigned int num_equal/*=0*/, const 
 	}
 }
 
-void Matrix::eliminateFloats(unsigned int i, unsigned int j){
-    if(((this->twoDArray[i][j] - floor(this->twoDArray[i][j])) <0.00000000001 && this->twoDArray[i][j]>0) || ((this->twoDArray[i][j] - ceil(this->twoDArray[i][j]) > 0.00000000001) && this->twoDArray[i][j]<0))
-        this->twoDArray[i][j]=(this->twoDArray[i][j]>0)?floor(this->twoDArray[i][j]) : ceil(this->twoDArray[i][j]);
-}
+
+
+
+//================= old Det func=================================== 
+
+
+
+/* unsigned int n,i,j,k;
+
+    n=this->rows;                //the order of the matrix
+	float** a = new float *[n];
+	for(int i =0;i<n;i++)
+		a[i]= new float[n];
+   
+	double det=1;
+	int flag=0;
+
+    for (i=0;i<n;i++)
+        for (j=0;j<n;j++)
+            a[i][j]=this->twoDArray[i][j];    //input the elements of array
+    for (i=0;i<n;i++)                    //Pivotisation
+        for (k=i+1;k<n;k++)
+            if (fabs(a[i][i])<fabs(a[k][i]))
+			{
+            	flag++;
+            	for (j=0;j<n;j++)
+				{
+                    double temp=a[i][j];
+                    a[i][j]=a[k][j];
+                    a[k][j]=temp;
+                }
+			}
+
+			
+
+    for (i=0;i<n-1;i++)            //loop to perform the gauss elimination
+        for (k=i+1;k<n;k++)
+            {
+                double t=a[k][i]/a[i][i];
+                for (j=0;j<n;j++)
+                    a[k][j]=a[k][j]-t*a[i][j];    //make the elements below the pivot elements equal to zero or elimnate the variables
+            }
+
+
+
+	for(i=0;i<n;i++){
+		det=det*a[i][i];
+	}
+	if (flag%2==0){
+		det=det;
+	}else{
+		det=-det;
+	}
+
+            return det;
+        }
+		*/
+/*
+			double det =1;
+			int n = this->rows;
+			double**a = new double*[n];
+			for(int i =0;i<n;i++)
+				a[i] = new double[n];
+
+			//filling a[][]
+
+			for(int i =0;i<n;i++)
+			{
+				for(int j=0;j<n;j++)
+				{
+					a[i][j] = this->twoDArray[i][j];
+				}
+				
+			}
+			
+
+			int zero_tri_flag=0;
+
+			for(int x =1;x<n;x++)
+					{
+						for(int y =0;y<x;y++)
+						{
+							if(a[x][y]!=0)zero_tri_flag =1;
+						}
+					}
+
+					
+		if(zero_tri_flag==1)
+		  {
+			zero_tri_flag = 0;
+			for(int i =0;i<n;i++)
+			{
+				int all_zero_flag=0;
+				int index_of_swaped_row=i;
+				
+				while(a[i][i]==0)
+				{
+					index_of_swaped_row++;
+					double temp;
+					
+					for(int j=0;j<n;j++)
+					{
+						
+						if(index_of_swaped_row== n){all_zero_flag=1;break;}
+						temp =a[i][j];
+						a[i][j] = a[index_of_swaped_row][j];
+						a[index_of_swaped_row][j] =temp;
+					}
+					if(all_zero_flag==1){break;}
+					det = det *-1;
+					
+					for(int x =1;x<n;x++)
+					{
+						for(int y =0;y<x;y++)
+						{
+							if(a[x][y]!=0)zero_tri_flag =1;
+						}
+					}
+
+					//to see matrix
+					/*cout<<"after swapping"<<endl;
+					for(int m=0;m<n;m++)
+					{
+						for(int f =0;f<n;f++)
+						{
+							cout<<a[m][f]<<"	";
+						}
+						cout<<endl;
+					}
+					cout<<"============================="<<endl;
+					cout<<"det = "<<det<<endl;
+					if(zero_tri_flag==1)
+					{
+						zero_tri_flag = 0;
+					}
+					else
+					{
+						break;
+					}
+				}
+				if(all_zero_flag==1){all_zero_flag=0;break;}
+				
+				if(a[i][i]!=1)
+				{ double temp =a[i][i];
+					for(int j=0;j<n;j++)
+					{
+						a[i][j] = a[i][j]/temp;
+					}
+					det = det*temp;
+					
+				}
+				for(int j =i+1;j<n;j++)
+				{
+					double temp =a[j][i];
+					for(int k=0;k<n;k++)
+					{
+						a[j][k] = a[j][k] - temp*a[i][k];
+					}
+
+				}
+				
+				//to see matrix
+					/*for(int m=0;m<n;m++)
+					{
+						for(int f =0;f<n;f++)
+						{
+							cout<<a[m][f]<<"	";
+						}
+						cout<<endl;
+					}
+					cout<<"============================="<<endl;
+				cout<<"det = "<<det<<endl
+				for(int x =1;x<n;x++)
+					{
+						for(int y =0;y<x;y++)
+						{
+							if(a[x][y]!=0)zero_tri_flag =1;
+						}
+					}
+					if(zero_tri_flag==1)
+					{
+						zero_tri_flag = 0;
+					}
+					else
+					{
+						break;
+					}
+				
+				}
+			}
+			
+
+			for(int i =0;i<n;i++)
+			{
+				det = det * a[i][i];
+			}
+
+
+	if(det==-0)det=0;
+
+			
+return det;*/

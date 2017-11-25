@@ -138,9 +138,6 @@ int main(int argv, char* argc[])
             try{
 				cout<<">> ";
                 getline(cin,commandLine);
-//                commandLine = " A = [1 2 3 4 ; 5 6  7 8 ; 9 10 11 12 ; 13 14 15 16]";
-//                inputHandling(commandLine,storedMatrices,systemCommands);
-//                commandLine = "det(A)";
                 /** extracting default matlab commands **/
                 if(commandLine== "quit" || commandLine== "QUIT" || commandLine== "Quit") {
                     if(storedMatrices.size()==0);
@@ -262,50 +259,8 @@ while(RHS.find(" ")!=RHS.npos) RHS.erase(RHS.find(" "),1);
 bool print = true;
 //cout<<"before op"<<endl;
 /********** START OPERATION  ***********/
-
-/*****************END OPERATIONS********************************/
-
-
-
-
-/*************START STRING INITIALIZING ******************/
-
-	if(input.find("[")!=input.npos){
-        if(input.find("]")!=input.npos){
-            if(input.find("]")!=input.length()-1){
-                string afterMatrix = input.substr(input.find("]")+1);
-                if(afterMatrix.find_first_not_of(" ;")==afterMatrix.npos)print=false;
-                input.erase(input.find("]")+1 ,afterMatrix.length());
-            }
-        }
-        else throw ("Close the brackets.");
-
-    /* storing */
-        Matrix inputAssignment(arrayOfLHS[0],input);
-        if(arrayOfIndeces[0]==-1){
-            storedMatrices.push_back(inputAssignment);
-        }
-        else{
-            storedMatrices[arrayOfIndeces[0]]=inputAssignment;
-        }
-
-        for(size_t i =1 ; i<num_equals;i++){
-            if(arrayOfIndeces[i]==-1){
-                inputAssignment.setName(arrayOfLHS[i]);
-                storedMatrices.push_back(inputAssignment);
-            }
-            else{
-                inputAssignment.setName(arrayOfLHS[i]);
-                storedMatrices[arrayOfIndeces[i]]=inputAssignment;
-            }
-        }
-        if(print) inputAssignment.printMatrix(true,num_equals,arrayOfLHS);
-        delete arrayOfIndeces;
-    }
-
-
-	else if(RHS.find("+") !=RHS.npos || RHS.find("-")!=RHS.npos && (RHS.find("-")>0 || (RHS.find("-")==0 && RHS.find_first_not_of(numbers)!=RHS.npos) || (RHS.find("-")==0 && RHS.find_first_of(alphabets)==RHS.npos && RHS.find_last_of("+-/")!=RHS.npos && RHS.find_last_of("+-/")>1))
-		|| RHS.find("*") !=RHS.npos  || RHS.find("/") !=RHS.npos || RHS.find("inv") !=RHS.npos || RHS.find("'") !=RHS.npos || RHS.find("`") !=RHS.npos || RHS.find("det")!=RHS.npos)
+	if(RHS.find("+") !=RHS.npos || (RHS.find("-") !=RHS.npos && ((RHS[0]=='-' && RHS.find_first_not_of(numbers)!=RHS.npos) || (RHS[0]=='-' && RHS.find_last_of("+-*/")>0)))
+		|| RHS.find("*") !=RHS.npos  || RHS.find("/") !=RHS.npos || RHS.find("inv") !=RHS.npos || RHS.find("'") !=RHS.npos || RHS.find("`") !=RHS.npos || RHS.find("det")!=RHS.npos|| (RHS.find("-")!=RHS.npos && RHS[0] !='-' && RHS.find("[")==RHS.npos) )
     {       //if it was an operation statement
 		//cout<<"in strat op"<<endl;
         if(RHS.find(";")!=RHS.npos){                //ay haga ba3d el semicolon mesh btethseb
@@ -401,7 +356,7 @@ bool print = true;
                 token = strtok(NULL,"-");
             }
             delete RHS_buffer;
-			if(i==1 && RHS[0]=='-'&& RHS.find_last_of("+-*/")==0){
+            if(i==1 && RHS[0]=='-'){
                 RHS.erase(0,1);
                 int operandIndex=-1;
                 for(size_t i = 0; i< storedMatrices.size(); i++)
@@ -425,7 +380,7 @@ bool print = true;
 				{
 					//cout<<". minus"<<endl;
                     string op;
-                    for(size_t i = 1; i<RHS.length();i++)
+                    for(size_t i = 0; i<RHS.length();i++)
                         if(RHS[i]=='.' && (RHS[i+1]=='*' || RHS[i+1]=='/' || RHS[i+1]=='-' || RHS[i+1]=='+')){
                             operands[0]=RHS.substr(0,i);
                             operands[1]=RHS.substr(i+2);
@@ -479,7 +434,7 @@ bool print = true;
                 }
                 else{   // ( + - / * )
                     char op;
-                    for(size_t i = 1; i < RHS.length();i++)
+                    for(size_t i = 0; i < RHS.length();i++)
                         if(RHS[i]=='+' || RHS[i]=='-' || RHS[i]=='*' || RHS[i]=='/'){
 							//cout<<"minus"<<endl;
                             operands[0]=RHS.substr(0,i);
@@ -556,7 +511,45 @@ bool print = true;
 
     /** end storing **/
     }
+/*****************END OPERATIONS********************************/
 
+
+
+
+/*************START STRING INITIALIZING ******************/
+
+	else if(input.find("[")!=input.npos){
+        if(input.find("]")!=input.npos){
+            if(input.find("]")!=input.length()-1){
+                string afterMatrix = input.substr(input.find("]")+1);
+                if(afterMatrix.find_first_not_of(" ;")==afterMatrix.npos)print=false;
+                input.erase(input.find("]")+1 ,afterMatrix.length());
+            }
+        }
+        else throw ("Close the brackets.");
+
+    /* storing */
+        Matrix inputAssignment(arrayOfLHS[0],input);
+        if(arrayOfIndeces[0]==-1){
+            storedMatrices.push_back(inputAssignment);
+        }
+        else{
+            storedMatrices[arrayOfIndeces[0]]=inputAssignment;
+        }
+
+        for(size_t i =1 ; i<num_equals;i++){
+            if(arrayOfIndeces[i]==-1){
+                inputAssignment.setName(arrayOfLHS[i]);
+                storedMatrices.push_back(inputAssignment);
+            }
+            else{
+                inputAssignment.setName(arrayOfLHS[i]);
+                storedMatrices[arrayOfIndeces[i]]=inputAssignment;
+            }
+        }
+        if(print) inputAssignment.printMatrix(true,num_equals,arrayOfLHS);
+        delete arrayOfIndeces;
+    }
 /**********END STRING INITIALIZTING *************/
 
 
