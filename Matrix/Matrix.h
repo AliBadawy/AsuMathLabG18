@@ -15,6 +15,7 @@ using namespace std;
 class Matrix
 {
     double** twoDArray;
+//    double det;
     bool notMatrix;
     unsigned int rows;
 	unsigned int columns;
@@ -72,7 +73,7 @@ public:
     Matrix* cofactor();
 
     double determinant(bool minor=false, unsigned posRow=0,unsigned posCol=0);
-	
+
     void eye(unsigned int=0, unsigned int=0);
     Matrix* subMatrix(string);
     Matrix* concatenate(Matrix& , Matrix&);
@@ -84,6 +85,10 @@ public:
 private:
 	void setSize(unsigned int,unsigned int);
 	void setElement(unsigned int,unsigned int,double);
+	void swapCols(unsigned int, unsigned int);
+	void swapRows(unsigned int, unsigned int);
+	double handleZeroPivot();  //return the number of swaps done as well, to change the sign of the determinant
+    static void eliminateFloats(double&);
 };
 
 #endif
