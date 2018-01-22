@@ -1,9 +1,5 @@
-
-#include<stdio.h>
-#include <sstream>
 #include "Matrix.h"
-#include <iomanip>
-#include <string>
+
 
 /************START CONSTRUCTORS*******************/
 double** twoDArray = NULL;
@@ -147,7 +143,7 @@ void Matrix::copyMatrix(const Matrix* A){
 
 /***********OPERATORS*****************/
 //Assignment Operators:
-Matrix& Matrix::operator=(Matrix& A){
+Matrix& Matrix::operator=(Matrix A){
     this->copyMatrix(&A);
     return *this;
 }
@@ -158,44 +154,44 @@ Matrix& Matrix::operator=(double value){
 }
 
 //Mathematical Operators:
-Matrix& Matrix::operator+(Matrix& A){
+Matrix Matrix::operator+(Matrix& A){
     Matrix* result = add(*this,A);
     return *result;
 }
-Matrix& Matrix::operator-(Matrix& A){
+Matrix Matrix::operator-(Matrix& A){
     Matrix* result = subtract(*this,A);
     return *result;
 }
-Matrix& Matrix::operator+(double value){
+Matrix Matrix::operator+(double value){
     Matrix *temp = new Matrix, *result;
     temp->setNum(value);
     result = add(*this,*temp);
     return *result;
 }
-Matrix& Matrix::operator-(double value){
+Matrix Matrix::operator-(double value){
     Matrix *temp = new Matrix, *result;
     temp->setNum(value);
     result = subtract(*this,*temp);
     return *result;
 }
-Matrix& Matrix::operator*(Matrix& A){
+Matrix Matrix::operator*(Matrix& A){
     Matrix* result = product(*this,A);
     return *result;
 }
 
-Matrix& Matrix::operator*(double value){
+Matrix Matrix::operator*(double value){
     Matrix  *temp = new Matrix, *result;
     temp->setNum(value);
     result=product(*this,*temp);
     return *result;
 }
 
-Matrix& Matrix::operator/(Matrix& A){
+Matrix Matrix::operator/(Matrix& A){
     Matrix* result = divide(*this,A);
     return *result;
 }
 
-Matrix& Matrix::operator/(double value){
+Matrix Matrix::operator/(double value){
     Matrix *temp = new Matrix, *result;
     temp->setNum(value);
     result=divide(*this,*temp);
@@ -604,7 +600,7 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
 					int col_piv_flag =0;
 					zero_tri_flag = 0;
 
-					
+
 					for(size_t i=0;i<n-1;i++)
 					{
 						//largest pivot
@@ -630,7 +626,7 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
 						det = det*-1;
 
 						}
-						
+
 						int x;
 						int zero_tri_flag1=0;
 							for(size_t x =0;x<n;x++)
@@ -682,7 +678,7 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
 							}
 
 							det = det *-1;
-							
+
 							int zero_tri_flag1=0;
 							for(size_t x =0;x<n;x++)
 							{
@@ -731,7 +727,7 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
 						for(size_t k=i+1;k<n;k++)
 						{
 							double temp = a[k][i]/a[i][i];
-							
+
 							for(size_t j =i;j<n;j++)
 							{
 								a[k][j]=a[k][j] - temp * a[i][j];
@@ -739,7 +735,7 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
 								a[k][i]=0;
 							}
 						}
-						
+
 						//since change in matrix therefore check for zero tri
 
 					    int zero_tri_flag2=0;
@@ -812,6 +808,92 @@ void Matrix::eye(unsigned int rows/*=0*/, unsigned int columns/*=0*/){
             this->twoDArray[i][j] = (i==j)? 1 : 0;
         }
     }
+}
+
+Matrix* Matrix::sinMatrix(){
+	Matrix *temp = new Matrix;
+	if(this->notMatrix){
+        temp->setNum(sin(this->num));
+	}
+	else{
+        temp -> setSize(this->rows,this->columns);
+        for(unsigned int i = 0;i<rows;i++)
+            for(unsigned int j = 0; j<columns;j++)
+                temp->twoDArray[i][j] = sin(this->twoDArray[i][j]);
+	}
+    return temp;
+}
+
+Matrix* Matrix::cosMatrix(){
+	Matrix *temp = new Matrix;
+	if(this->notMatrix){
+        temp->setNum(cos(this->num));
+	}
+	else{
+        temp -> setSize(this->rows,this->columns);
+        for(unsigned int i = 0;i<rows;i++)
+            for(unsigned int j = 0; j<columns;j++)
+                temp->twoDArray[i][j] = cos(this->twoDArray[i][j]);
+    }
+	return temp;
+}
+
+Matrix* Matrix::tanMatrix(){
+	Matrix *temp = new Matrix;
+	if(this->notMatrix){
+        temp->setNum(tan(this->num));
+	}
+	else{
+        temp -> setSize(this->rows,this->columns);
+        for(unsigned int i = 0;i<rows;i++)
+            for(unsigned int j = 0; j<columns;j++){
+                if(this->twoDArray[i][j] == PI/2.0) throw/* Handle Here */;
+                temp->twoDArray[i][j] = tan(this->twoDArray[i][j]);
+            }
+	}
+	return temp;
+}
+
+Matrix* Matrix::asinMatrix(){
+	Matrix *temp = new Matrix;
+	if(this->notMatrix){
+        temp->setNum(asin(this->num));
+	}
+	else{
+        temp -> setSize(this->rows,this->columns);
+        for(unsigned int i = 0;i<rows;i++)
+            for(unsigned int j = 0; j<columns;j++)
+                temp->twoDArray[i][j] = asin(this->twoDArray[i][j]);
+	}
+	return temp;
+}
+
+Matrix* Matrix::acosMatrix(){
+	Matrix *temp = new Matrix;
+	if(this->notMatrix){
+        temp->setNum(acos(this->num));
+	}
+	else{
+        temp -> setSize(this->rows,this->columns);
+        for(unsigned int i = 0;i<rows;i++)
+            for(unsigned int j = 0; j<columns;j++)
+                temp->twoDArray[i][j] = acos(this->twoDArray[i][j]);
+	}
+	return temp;
+}
+
+Matrix* Matrix::atanMatrix(){
+	Matrix *temp = new Matrix;
+	if(this->notMatrix){
+        temp->setNum(sin(this->num));
+	}
+	else{
+        temp -> setSize(this->rows,this->columns);
+        for(unsigned int i = 0;i<rows;i++)
+            for(unsigned int j = 0; j<columns;j++)
+                temp->twoDArray[i][j] = atan(this->twoDArray[i][j]);
+	}
+	return temp;
 }
 
 /*********************START SUBMATRIX************************/

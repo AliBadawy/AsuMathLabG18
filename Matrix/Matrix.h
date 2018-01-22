@@ -4,11 +4,16 @@
 #include <cstdlib>
 #include <string.h>
 #include <math.h>
-#include<stdio.h>
+#include <stdio.h>
+#include <sstream>
+#include <iomanip>
+
 using namespace std;
 
 #define alphabets "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define numbers "-.0123456789"
+#define PI 3.1415
+
 #ifndef MATRIX_H
 #define MATRIX_H
 
@@ -32,16 +37,16 @@ public:
 	void copyMatrix(const Matrix*);
 
   //Operators:
-	Matrix& operator=(Matrix&);
+	Matrix& operator=(Matrix);
 	Matrix& operator=(double);
-	Matrix& operator+(Matrix&);
-	Matrix& operator-(Matrix&);
-	Matrix& operator+(double);
-	Matrix& operator-(double);
-	Matrix& operator*(Matrix&);
-	Matrix& operator/(Matrix&);
-	Matrix& operator*(double);
-	Matrix& operator/(double);
+	Matrix operator+(Matrix&);
+	Matrix operator-(Matrix&);
+	Matrix operator+(double);
+	Matrix operator-(double);
+	Matrix operator*(Matrix&);
+	Matrix operator/(Matrix&);
+	Matrix operator*(double);
+	Matrix operator/(double);
 	Matrix& operator-();
 
   //Setters and Getters:
@@ -75,6 +80,14 @@ public:
     double determinant(bool minor=false, unsigned posRow=0,unsigned posCol=0);
 
     void eye(unsigned int=0, unsigned int=0);
+
+    Matrix* sinMatrix();
+    Matrix* cosMatrix();
+    Matrix* tanMatrix();
+    Matrix* asinMatrix();
+    Matrix* acosMatrix();
+    Matrix* atanMatrix();
+
     Matrix* subMatrix(string);
     Matrix* concatenate(Matrix& , Matrix&);
 

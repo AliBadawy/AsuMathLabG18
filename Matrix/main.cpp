@@ -559,7 +559,8 @@ bool print = true;
 
 
 /*********SPECIAL FUNCTIONS**************/  //ones, zeros, eye, ... etc
-    else if(RHS.find("eye")!=RHS.npos || RHS.find("zeros")!=RHS.npos || RHS.find("ones")!=RHS.npos || RHS.find("rand")!=RHS.npos){
+    else if(RHS.find("eye")!=RHS.npos || RHS.find("zeros")!=RHS.npos || RHS.find("ones")!=RHS.npos || RHS.find("rand")!=RHS.npos
+             || RHS.find("sin")!=RHS.npos || RHS.find("cos")!=RHS.npos || RHS.find("tan")!=RHS.npos){
     Matrix* temp = new Matrix;
     if(RHS.find(";")!=RHS.npos){
         RHS.erase(RHS.begin()+RHS.find(";"),RHS.end());
@@ -595,10 +596,43 @@ bool print = true;
         else *temp = 1.0;
     }
 
-    //2.ZEROS:
+    //4.TRIGONOMETRIC:
+    else if(RHS.find("sin")!=RHS.npos || RHS.find("cos")!=RHS.npos || RHS.find("tan")!=RHS.npos){
+        bool arc = false;
+        if(RHS.find("asin")!=RHS.npos || RHS.find("acos")!=RHS.npos || RHS.find("atan")!=RHS.npos) arc = true;
+        if(RHS.find("(")==RHS.npos || RHS.find(")")==RHS.npos) throw("Invalid input format.");
+        char buff[50]; buff[0] = 0;
+        strcpy(buff,RHS.c_str());
+        string func = (string)strtok(buff,"(");;
+        string operand = (string)strtok(NULL,")");
+        bool found = false;
 
+        for (unsigned int i = 0 ; i < storedMatrices.size(); i++)
+            if(operand == storedMatrices[i].getName()) {
+                found = true;
+                *temp = storedMatrices[i];
+                break;
+            }
+        if(!found){
+            if(operand.find_first_not_of(numbers) != operand.npos) throw("Operand not found.");
+            else *temp = strtod(operand.c_str(),NULL);
+        }
 
-    //3.ONES:
+        if (func.find("sin")!=func.npos){
+            if(arc) temp->asinMatrix();
+            else temp->sinMatrix();
+        }
+        else if (func.find("cos")!=func.npos){
+            if(arc) temp->acosMatrix();
+            else temp->cosMatrix();
+        }
+        else if (func.find("tan")!=func.npos){
+            if(arc) temp->atanMatrix();
+            else temp->tanMatrix();
+        }
+        else throw ("Not supported.");
+    }
+    //4.ONES:
 
 
 
