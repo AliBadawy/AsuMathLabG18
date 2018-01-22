@@ -12,7 +12,7 @@ using namespace std;
 
 #define alphabets "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define numbers "-.0123456789"
-#define PI 3.1415
+#define PI 3.14159265359
 
 #ifndef MATRIX_H
 #define MATRIX_H

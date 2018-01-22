@@ -19,6 +19,7 @@
 
 #define alphabets "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define numbers "-.0123456789"
+#define PI 3.14159265359
 
 
 using namespace std;
@@ -299,12 +300,13 @@ bool print = true;
         if(print) inputAssignment.printMatrix(true,num_equals,arrayOfLHS);
         delete arrayOfIndeces;
     }
-
+/**********END STRING INITIALIZTING *************/
 
 	else if(RHS.find("+") !=RHS.npos || RHS.find("-")!=RHS.npos && (RHS.find("-")>0 || (RHS.find("-")==0 && RHS.find_first_not_of(numbers)!=RHS.npos) || (RHS.find("-")==0 && RHS.find_first_of(alphabets)==RHS.npos && RHS.find_last_of("+-/")!=RHS.npos && RHS.find_last_of("+-/")>1))
-		|| RHS.find("*") !=RHS.npos  || RHS.find("/") !=RHS.npos || RHS.find("inv") !=RHS.npos || RHS.find("'") !=RHS.npos || RHS.find("`") !=RHS.npos || RHS.find("det")!=RHS.npos)
+		|| RHS.find("*") !=RHS.npos  || RHS.find("/") !=RHS.npos || RHS.find("inv") !=RHS.npos || RHS.find("'") !=RHS.npos || RHS.find("`") !=RHS.npos || RHS.find("det")!=RHS.npos
+        || RHS.find("sin")!=RHS.npos || RHS.find("cos")!=RHS.npos || RHS.find("tan")!=RHS.npos)
     {       //if it was an operation statement
-		//cout<<"in strat op"<<endl;
+
         if(RHS.find(";")!=RHS.npos){                //ay haga ba3d el semicolon mesh btethseb
             RHS.erase(RHS.begin()+RHS.find(";"),RHS.end());
             print = false;
@@ -380,6 +382,45 @@ bool print = true;
                 else temp = storedMatrices[operandIndex].transpose();
             }
         }  //end transpose
+
+        /* TRIGONOMETRIC */
+        else if(RHS.find("sin")!=RHS.npos || RHS.find("cos")!=RHS.npos || RHS.find("tan")!=RHS.npos){
+            bool arc = false;
+            if(RHS.find("asin")!=RHS.npos || RHS.find("acos")!=RHS.npos || RHS.find("atan")!=RHS.npos) arc = true;
+            if(RHS.find("(")==RHS.npos || RHS.find(")")==RHS.npos) throw("Invalid input format.");
+            char buff[50]; buff[0] = 0;
+            strcpy(buff,RHS.c_str());
+            string func = (string)strtok(buff,"(");;
+            string operand = (string)strtok(NULL,")");
+            bool found = false;
+
+            for (unsigned int i = 0 ; i < storedMatrices.size(); i++)
+                if(operand == storedMatrices[i].getName()) {
+                    found = true;
+                    *temp = storedMatrices[i];
+                    break;
+                }
+            if(!found){
+                if(operand == "PI")  *temp = PI;
+                else if(operand.find_first_not_of(numbers) != operand.npos) throw("Operand not found.");
+                else *temp = strtod(operand.c_str(),NULL);
+            }
+
+            if (func.find("sin")!=func.npos){
+                if(arc) temp = temp->asinMatrix();
+                else temp = temp->sinMatrix();
+            }
+            else if (func.find("cos")!=func.npos){
+                if(arc) temp = temp->acosMatrix();
+                else temp = temp->cosMatrix();
+            }
+            else if (func.find("tan")!=func.npos){
+                if(arc) temp = temp->atanMatrix();
+                else temp = temp->tanMatrix();
+            }
+            else throw ("Not supported.");
+        }
+        //end trigonometric
 
         /* MATHEMATICAL OPERATIONS */
         else if(RHS.find("*")!=RHS.npos || RHS.find("/")!=RHS.npos || RHS.find("+")!=RHS.npos || RHS.find("-")!=RHS.npos){
@@ -554,13 +595,12 @@ bool print = true;
     /** end storing **/
     }
 
-/**********END STRING INITIALIZTING *************/
+
 
 
 
 /*********SPECIAL FUNCTIONS**************/  //ones, zeros, eye, ... etc
-    else if(RHS.find("eye")!=RHS.npos || RHS.find("zeros")!=RHS.npos || RHS.find("ones")!=RHS.npos || RHS.find("rand")!=RHS.npos
-             || RHS.find("sin")!=RHS.npos || RHS.find("cos")!=RHS.npos || RHS.find("tan")!=RHS.npos){
+    else if(RHS.find("eye")!=RHS.npos || RHS.find("zeros")!=RHS.npos || RHS.find("ones")!=RHS.npos || RHS.find("rand")!=RHS.npos){
     Matrix* temp = new Matrix;
     if(RHS.find(";")!=RHS.npos){
         RHS.erase(RHS.begin()+RHS.find(";"),RHS.end());
@@ -596,44 +636,14 @@ bool print = true;
         else *temp = 1.0;
     }
 
-    //4.TRIGONOMETRIC:
-    else if(RHS.find("sin")!=RHS.npos || RHS.find("cos")!=RHS.npos || RHS.find("tan")!=RHS.npos){
-        bool arc = false;
-        if(RHS.find("asin")!=RHS.npos || RHS.find("acos")!=RHS.npos || RHS.find("atan")!=RHS.npos) arc = true;
-        if(RHS.find("(")==RHS.npos || RHS.find(")")==RHS.npos) throw("Invalid input format.");
-        char buff[50]; buff[0] = 0;
-        strcpy(buff,RHS.c_str());
-        string func = (string)strtok(buff,"(");;
-        string operand = (string)strtok(NULL,")");
-        bool found = false;
 
-        for (unsigned int i = 0 ; i < storedMatrices.size(); i++)
-            if(operand == storedMatrices[i].getName()) {
-                found = true;
-                *temp = storedMatrices[i];
-                break;
-            }
-        if(!found){
-            if(operand.find_first_not_of(numbers) != operand.npos) throw("Operand not found.");
-            else *temp = strtod(operand.c_str(),NULL);
-        }
+    //2.ZEROS:
 
-        if (func.find("sin")!=func.npos){
-            if(arc) temp->asinMatrix();
-            else temp->sinMatrix();
-        }
-        else if (func.find("cos")!=func.npos){
-            if(arc) temp->acosMatrix();
-            else temp->cosMatrix();
-        }
-        else if (func.find("tan")!=func.npos){
-            if(arc) temp->atanMatrix();
-            else temp->tanMatrix();
-        }
-        else throw ("Not supported.");
-    }
-    //4.ONES:
 
+    //3.ONES:
+
+
+    //4.RAND:
 
 
     //Storing:
