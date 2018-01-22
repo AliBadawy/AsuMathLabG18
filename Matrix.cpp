@@ -616,6 +616,62 @@ double Matrix::determinant(bool minor, unsigned posRow, unsigned posCol) {
 	}
 }
 
+Matrix* Matrix::sinMatrix(){
+	Matrix *temp = new Matrix;
+	temp -> setSize(this->rows,this->columns);
+	for(unsigned int i = 0;i<rows;i++)
+		for(unsigned int j = 0; j<columns;j++)
+			temp->twoDArray[i][j] = sin(this->twoDArray[i][j]);
+	return temp;
+}
+
+Matrix* Matrix::cosMatrix(){
+	Matrix *temp = new Matrix;
+	temp -> setSize(this->rows,this->columns);
+	for(unsigned int i = 0;i<rows;i++)
+		for(unsigned int j = 0; j<columns;j++)
+			temp->twoDArray[i][j] = cos(this->twoDArray[i][j]);
+	return temp;
+}
+
+Matrix* Matrix::tanMatrix(){
+	Matrix *temp = new Matrix;
+	temp -> setSize(this->rows,this->columns);
+	for(unsigned int i = 0;i<rows;i++)
+		for(unsigned int j = 0; j<columns;j++){
+			if(this->twoDArray[i][j] == PI) throw(/* Handle Here */)			
+			temp->twoDArray[i][j] = tan(this->twoDArray[i][j]);
+		}	
+	return temp;
+}
+
+Matrix* Matrix::asinMatrix(){
+	Matrix *temp = new Matrix;
+	temp -> setSize(this->rows,this->columns);
+	for(unsigned int i = 0;i<rows;i++)
+		for(unsigned int j = 0; j<columns;j++)
+			temp->twoDArray[i][j] = asin(this->twoDArray[i][j]);
+	return temp;
+}
+
+Matrix* Matrix::acosMatrix(){
+	Matrix *temp = new Matrix;
+	temp -> setSize(this->rows,this->columns);
+	for(unsigned int i = 0;i<rows;i++)
+		for(unsigned int j = 0; j<columns;j++)
+			temp->twoDArray[i][j] = acos(this->twoDArray[i][j]);
+	return temp;
+}
+
+Matrix* Matrix::atanMatrix(){
+	Matrix *temp = new Matrix;
+	temp -> setSize(this->rows,this->columns);
+	for(unsigned int i = 0;i<rows;i++)
+		for(unsigned int j = 0; j<columns;j++)
+			temp->twoDArray[i][j] = atan(this->twoDArray[i][j]);
+	return temp;
+}
+
 void Matrix::eye(unsigned int rows/*=0*/, unsigned int columns/*=0*/) {
 	if (rows == 0 && columns == 0) {
 		this->num = 1.0;

@@ -4,11 +4,13 @@
 #include <cstdlib>
 #include <string.h>
 #include <math.h>
-#include<stdio.h>
+#include <stdio.h>
 using namespace std;
 
 #define alphabets "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define numbers "-.0123456789"
+#define PI 3.1415
+
 #ifndef MATRIX_H
 #define MATRIX_H
 
@@ -18,7 +20,7 @@ class Matrix
 	bool notMatrix;
 	unsigned int rows;
 	unsigned int columns;
-	double num;  //some variables will not be matrices .. but they need to be stored
+	double num;  //scalar variables
 	string name;
 public:
 	//Constructors and Destructors:
@@ -74,7 +76,13 @@ public:
 	double determinant(bool minor = false, unsigned posRow = 0, unsigned posCol = 0);
 
 	void eye(unsigned int = 0, unsigned int = 0);
-	Matrix* subMatrix(string);
+	
+	Matrix* sinMatrix();
+	Matrix* cosMatrix();
+	Matrix* tanMatrix();
+	Matrix* asinMatrix();
+	Matrix* acosMatrix();
+	Matrix* atanMatrix();
 
 	Matrix* concatenateHor(Matrix&, Matrix&);
 	Matrix* concatenateVer(Matrix&, Matrix&);
