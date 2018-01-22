@@ -2,48 +2,34 @@
 
 
 /************START CONSTRUCTORS*******************/
-double** twoDArray = NULL;
 
 //Default Constructor:
 Matrix::Matrix()
-:twoDArray(NULL){}
+:notMatrix(false),rows(0),columns(0),num(0),name(""),twoDArray(NULL){}
 
 //Scalar Constructor:
 Matrix::Matrix(double value)
-:twoDArray(NULL),
- notMatrix(true),
- rows(0),
- columns(0),
- num(value){}
+:notMatrix(true),rows(0),columns(0),num(value),name(""),twoDArray(NULL){}
 
 //Size Constructor:
 Matrix::Matrix(unsigned int rows,unsigned int cols)
-:twoDArray(NULL),
- notMatrix(false),
- num(0)
+:notMatrix(false),rows(rows),columns(cols),num(0),name(""),twoDArray(NULL)
 {
     this->setSize(rows,cols);
 }
 
 //Copy Constructor:
 Matrix::Matrix(const Matrix& A)
-:twoDArray(NULL),
- num(0)
+:notMatrix(false),rows(0),columns(0),num(0),name(""),twoDArray(NULL)
 {
     copyMatrix(&A);
 }
 
 //String Constructor
 Matrix::Matrix(string name,string matrixString)
-:twoDArray(NULL),
- notMatrix(false),
- rows(0),
- columns(0),
- num(0)
+:notMatrix(false),rows(0),columns(0),num(0),name(name),twoDArray(NULL)
 {
     if(name.find_first_not_of(alphabets)==0) throw("Variable name is not valid.");
-
-    this->name = name;
 
     if(matrixString.find("[")!=matrixString.npos)matrixString.erase(0,matrixString.find("[")+1);
 
@@ -505,7 +491,7 @@ Matrix* Matrix::inverse(){
 
 Matrix* Matrix::transpose(){
     Matrix* temp = new Matrix;
-    temp->setSize((this->columns),(this->rows));
+    temp->setSize(this->columns , this->rows);
     for(size_t i=0;i<this->columns;i++)
         for(size_t j=0;j<this->rows;j++)
             temp->twoDArray[i][j]=this->twoDArray[j][i];
@@ -605,8 +591,8 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
 					{
 						//largest pivot
 						double largest_pivot =a[i][i];
-						int index_of_largest_pivot =i;
-						for(int o =i+1;o<n;o++)
+						unsigned int index_of_largest_pivot =i;
+						for(unsigned int o =i+1;o<n;o++)
 						{
 							if(fabs(a[o][i])>fabs(largest_pivot))
 							{
@@ -627,7 +613,6 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
 
 						}
 
-						int x;
 						int zero_tri_flag1=0;
 							for(size_t x =0;x<n;x++)
 							{
@@ -769,7 +754,7 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
     //di halet el determinant bta3 el submatrix 3ashan akamel beh el inverse
     else{
         Matrix* temp = new Matrix;
-        temp->setSize((this->rows)-1,(this->columns)-1);
+        temp->setSize(this->rows -1, this->columns -1);
 
 		for(size_t i=0;i<temp->rows;i++)
 			for(size_t j=0;j<temp->columns;j++)
@@ -780,34 +765,33 @@ double Matrix::determinant(bool minor , unsigned posRow,unsigned posCol){
 				//cout<<posRow<<"  "<<posRow<<"  "<<x<<"  "<<y<<endl;
 				temp->twoDArray[i][j]=this->twoDArray[x][y];
 			}
-	/*
-        size_t subRow=0;
-        for(size_t i=0;i<this->rows;i++){
-            size_t subCol=0;
-            if(i==posRow)continue;
-            for(size_t j=0;j<this->columns;j++){
-                if(j==posCol)continue;
-                temp->twoDArray[subRow][subCol++]=this->twoDArray[i][j];
-            }
-            subRow++;
-        }*/
-
         return temp->determinant();
     }
+    throw("Can't Solve Determinant.");
 }
 
-void Matrix::eye(unsigned int rows/*=0*/, unsigned int columns/*=0*/){
-    if(rows == 0 && columns == 0){
-        this->num = 1.0;
-        return;
-    }
-    else if(rows==0 || columns==0) throw("Dimension error (eye).");
-    this->setSize(rows,columns);
-    for(size_t i =0 ;i<this->rows;i++){
-        for(size_t j=0;j<this->columns;j++){
-            this->twoDArray[i][j] = (i==j)? 1 : 0;
-        }
-    }
+void Matrix::eye(unsigned int rows/*=0*/, unsigned int cols/*=0*/){
+    if(rows==0 || cols==0) throw("Dimension error (eye).");
+    this->setSize(rows,cols);
+    for(size_t i =0 ;i<this->rows;i++)
+        for(size_t j=0;j<this->columns;j++)
+            this->twoDArray[i][j] = (i==j)? 1.0 : 0.0;
+}
+
+void Matrix::ones(unsigned int rows/*=0*/,unsigned int cols/*=0*/){
+    if(rows==0 || cols==0) throw("Dimension error (ones).");
+    this->setSize(rows,cols);
+    for(size_t i =0 ;i<this->rows;i++)
+        for(size_t j=0;j<this->columns;j++)
+            this->twoDArray[i][j] = 1.0;
+}
+
+void Matrix::random(unsigned int rows/*=0*/,unsigned int cols/*=0*/){
+    if(rows==0 || cols==0) throw("Dimension error (ones).");
+    this->setSize(rows,cols);
+    for(size_t i =0 ;i<this->rows;i++)
+        for(size_t j=0;j<this->columns;j++)
+            this->twoDArray[i][j] = (double)rand() / RAND_MAX;
 }
 
 Matrix* Matrix::sinMatrix(){

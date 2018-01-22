@@ -302,7 +302,7 @@ bool print = true;
     }
 /**********END STRING INITIALIZTING *************/
 
-	else if(RHS.find("+") !=RHS.npos || RHS.find("-")!=RHS.npos && (RHS.find("-")>0 || (RHS.find("-")==0 && RHS.find_first_not_of(numbers)!=RHS.npos) || (RHS.find("-")==0 && RHS.find_first_of(alphabets)==RHS.npos && RHS.find_last_of("+-/")!=RHS.npos && RHS.find_last_of("+-/")>1))
+	else if(RHS.find("+") !=RHS.npos || (RHS.find("-")!=RHS.npos && (RHS.find("-")>0 || (RHS.find("-")==0 && RHS.find_first_not_of(numbers)!=RHS.npos) || (RHS.find("-")==0 && RHS.find_first_of(alphabets)==RHS.npos && RHS.find_last_of("+-/")!=RHS.npos && RHS.find_last_of("+-/")>1)))
 		|| RHS.find("*") !=RHS.npos  || RHS.find("/") !=RHS.npos || RHS.find("inv") !=RHS.npos || RHS.find("'") !=RHS.npos || RHS.find("`") !=RHS.npos || RHS.find("det")!=RHS.npos
         || RHS.find("sin")!=RHS.npos || RHS.find("cos")!=RHS.npos || RHS.find("tan")!=RHS.npos)
     {       //if it was an operation statement
@@ -606,44 +606,50 @@ bool print = true;
         RHS.erase(RHS.begin()+RHS.find(";"),RHS.end());
         print = false;
     }
+    bool parameters = false;
+    bool square = false;
+    unsigned int r,c,dim;
+    if(RHS.find("(")!=RHS.npos){
+        if(RHS.find(")")==RHS.npos) throw("Invalid input format.");
+        parameters = true;
+        char buff[50]; buff[0]=0;
+        strcpy(buff,RHS.c_str());
+        string func = (string)strtok(buff,"(");
+        string dimString = (string)strtok(NULL,")");
+        if(dimString.find(",")==dimString.npos){
+            square = true;
+            dim = (int)strtod(dimString.c_str(),NULL);
+        }
+        r = (int)strtod(dimString.substr(0,dimString.find(",")).c_str() , NULL);
+        c = (int)strtod(dimString.substr(dimString.find(",") + 1).c_str() , NULL);
+    }
 
     //1. EYE:
     if(RHS.find("eye")!=RHS.npos){
-        if(RHS.find("(")!=RHS.npos){
-            RHS.erase(RHS.begin(),RHS.begin()+RHS.find("(")+1);
-            if(RHS.find(")")!=RHS.npos) RHS.erase(RHS.begin()+RHS.find(")"));
-            else throw("Close the parentheses after entering the dimensions.");
-            //a. non-square eye
-            char *e1, *e2;
-            if(RHS.find(",")!=RHS.npos){
-                int rows=0,cols=0;
-                string rowString = RHS.substr(0,RHS.find(","));
-                string colString = RHS.substr(RHS.find(",")+1);
-                rows = strtod (rowString.c_str() , &e1);
-                cols = strtod (colString.c_str() , &e2);
-                if(*e1 != 0 || *e2 != 0) throw("Invalid identity matrix dimensions.");
-                temp->eye(rows,cols);
-            }
-            //b. start square eye
-            else{
-                int dim=0;
-                dim = strtod(RHS.c_str() , &e1);
-                if(*e1 != 0) throw("Invalid identity matrix dimensions.");
-                temp->eye(dim,dim);
-            }
-        }
-//c. no dimensions
-        else *temp = 1.0;
+        if(!parameters) temp->setNum(1.0);
+        else if(square) temp->eye(dim,dim);
+        else temp->eye(r,c);
+    }
+    //2.ZEROS:
+    else if(RHS.find("zeros")!=RHS.npos){
+        if(!parameters) temp->setNum(0.0);
+        else if(square) temp->setSize(dim,dim);
+        else temp->setSize(r,c);
+    }
+    //3.ONES:
+    else if(RHS.find("ones")!=RHS.npos){
+        if(!parameters) temp->setNum(1.0);
+        else if(square) temp->ones(dim,dim);
+        else temp->ones(r,c);
     }
 
-
-    //2.ZEROS:
-
-
-    //3.ONES:
-
-
     //4.RAND:
+    else if(RHS.find("rand")!=RHS.npos){
+        if(!parameters) temp->setNum( (double)rand() / RAND_MAX );
+        else if(square) temp->random(dim,dim);
+        else temp->random(r,c);
+    }
+
 
 
     //Storing:

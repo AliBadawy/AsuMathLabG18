@@ -19,13 +19,13 @@ using namespace std;
 
 class Matrix
 {
-    double** twoDArray;
-//    double det;
     bool notMatrix;
     unsigned int rows;
 	unsigned int columns;
-    double num;  //some variables will not be matrices .. but they need to be stored
+    double num;
     string name;
+    double** twoDArray;
+
 public:
   //Constructors and Destructors:
 	Matrix();
@@ -52,11 +52,13 @@ public:
   //Setters and Getters:
 	void setName(string);
     void setNum(double);
+	void setSize(unsigned int,unsigned int);
 	string getName();
 	int getRows();
 	int getColumns();
 	double getNum();
 	double getElement(unsigned int,unsigned int);
+
 
   //Operations:
     static Matrix* add(Matrix&,Matrix&);   //add made by '+' operator
@@ -80,6 +82,8 @@ public:
     double determinant(bool minor=false, unsigned posRow=0,unsigned posCol=0);
 
     void eye(unsigned int=0, unsigned int=0);
+    void ones(unsigned int=0,unsigned int=0);
+    void random(unsigned int=0, unsigned int=0);
 
     Matrix* sinMatrix();
     Matrix* cosMatrix();
@@ -96,7 +100,6 @@ public:
     bool is_square();
     bool is_scalar();
 private:
-	void setSize(unsigned int,unsigned int);
 	void setElement(unsigned int,unsigned int,double);
 	void swapCols(unsigned int, unsigned int);
 	void swapRows(unsigned int, unsigned int);
