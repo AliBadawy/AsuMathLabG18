@@ -1,53 +1,35 @@
-#include<stdio.h>
 #include "Matrix.h"
-#include <iomanip> 
 
+Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string>& systemCommands);
 /************START CONSTRUCTORS*******************/
-double** twoDArray = NULL;
-static const int PI =3.14; 
-#pragma warning(disable:4996)
+
 //Default Constructor:
 Matrix::Matrix()
-	:twoDArray(NULL) {}
+	:notMatrix(false), rows(0), columns(0), num(0), name(""), twoDArray(NULL) {}
 
 //Scalar Constructor:
 Matrix::Matrix(double value)
-	: twoDArray(NULL),
-	notMatrix(true),
-	rows(0),
-	columns(0),
-	num(value) {}
-
+	: notMatrix(true), rows(0), columns(0), num(value), name(""), twoDArray(NULL) {}
 
 //Size Constructor:
 Matrix::Matrix(unsigned int rows, unsigned int cols)
-	:twoDArray(NULL),
-	notMatrix(false),
-	num(0)
+	: notMatrix(false), rows(rows), columns(cols), num(0), name(""), twoDArray(NULL)
 {
 	this->setSize(rows, cols);
 }
 
 //Copy Constructor:
 Matrix::Matrix(const Matrix& A)
-	:twoDArray(NULL),
-	num(0)
+	:notMatrix(false), rows(0), columns(0), num(0), name(""), twoDArray(NULL)
 {
 	copyMatrix(&A);
 }
 
 //String Constructor
 Matrix::Matrix(string name, string matrixString)
-	:twoDArray(NULL),
-	notMatrix(false),
-	rows(0),
-	columns(0),
-	num(0)
+	:notMatrix(false), rows(0), columns(0), num(0), name(name), twoDArray(NULL)
 {
-	
 	if (name.find_first_not_of(alphabets) == 0) throw("Variable name is not valid.");
-	//**********************************************************************************************************error here?******
-	this->name = name;
 
 	if (matrixString.find("[") != matrixString.npos)matrixString.erase(0, matrixString.find("[") + 1);
 
@@ -109,8 +91,6 @@ Matrix::Matrix(string name, string matrixString)
 		}
 	inputElements.clear();
 }
-
-
 
 void Matrix::addMatrixToMatrix(Matrix &x,int r,int c)
 {
@@ -223,14 +203,14 @@ void Matrix::addMatrixToMatrix(Matrix &x,int r,int c)
 			}
 			
 	}
-	else if(this->rows< r+x.rows && this->columns< c+x.columns ) throw("invalid exepression.");
+	else if(this->rows< r+x.rows && this->columns< c+x.columns ) throw("  invalid exepression.");
 	//this->printMatrix();
 }
 
 
 
 
-Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices)
+Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices,vector<string>& systemCommands)
 {
 	if(name.find_first_not_of(alphabets)== 0) throw("Variable name is not valid.");
 	this->name = name;
@@ -252,14 +232,15 @@ Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices)
 		else if(matrixString[i]==']')
 			counter2++;
 	}
-	if(counter1!=counter2)throw("invalid exepression.");
+	if(counter1!=counter2)throw("invalid exepression.(close Brackets)");
 
 	matrixString.erase(0,matrixString.find("[")+1);
 	while(matrixString[0]==' ')matrixString.erase(0,1);
 	matrixString.erase(matrixString.rfind("]"),1);
 	while(matrixString[matrixString.length()-1]==' ')matrixString.erase(matrixString.length()-1,1);
 
-	string operationsString = "+*/^'();";
+	//string operationsString = "+*/^'();";
+	string operationsString = "+*/^';";
 	int currentRow=0,currentCol=0;
 	for(int i=0;i<matrixString.length();i++)
 	{
@@ -292,7 +273,7 @@ Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices)
 			i--;
 			currentCol++;
 		}
-		else if(matrixString[i]==';' || matrixString[i] == '\r')
+		else if(matrixString[i]==';' || matrixString[i] == '\n')
 		{
 			currentRow ++ ;
 			currentCol = 0 ;
@@ -310,7 +291,7 @@ Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices)
 				k++;
 			}
 
-			Matrix x("noname",temp,storedMatrices);
+			Matrix x("noname",temp,storedMatrices,systemCommands);
 			numb_elements += x.rows * x.columns;
 			
 			
@@ -321,7 +302,7 @@ Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices)
 			{
 				currentCol += x.columns-1;
 			}
-			else if(matrixString[i+ temp.length()]==';' || matrixString[i+ temp.length()]=='\r')
+			else if(matrixString[i+ temp.length()]==';' || matrixString[i+ temp.length()]=='\n')
 			{
 				currentRow += x.rows-1;
 			}
@@ -332,7 +313,7 @@ Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices)
 		else
 		{
 			int k = i;
-			while((matrixString[k]!=' ' && matrixString[k] != ',' && matrixString[k] != ';' && matrixString[k] != '\r') )
+			while((matrixString[k]!=' ' && matrixString[k] != ',' && matrixString[k] != ';' && matrixString[k] != '\n') )
 			{
 				temp+=matrixString[k];
 				k++;
@@ -354,8 +335,24 @@ Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices)
 
 			if(multi_op_flag)
 			{
-				//handle multi op
-								
+				Matrix x = multiOpHandling(temp,storedMatrices,systemCommands);
+				if(x.notMatrix == true)
+				{
+					numb_elements += 1;
+				}
+				else
+				{
+					numb_elements += x.rows * x.columns;
+				}
+				this->addMatrixToMatrix(x,currentRow,currentCol);
+				if(matrixString[i+ temp.length()]==',' || matrixString[i+ temp.length()]==' ')
+				{
+					currentCol += x.columns-1;
+				}
+				else if(matrixString[i+ temp.length()]==';' || matrixString[i+ temp.length()]=='\n')
+				{
+					currentRow +=x.rows-1;
+				}	
 			}
 			else
 			{
@@ -379,7 +376,7 @@ Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices)
 								{
 									currentCol += storedMatrices[j].columns-1;
 								}
-							else if(matrixString[i+ temp.length()]==';' || matrixString[i+ temp.length()]=='\r')
+							else if(matrixString[i+ temp.length()]==';' || matrixString[i+ temp.length()]=='\n')
 								{
 									currentRow +=storedMatrices[j].rows-1;
 								}
@@ -409,7 +406,6 @@ Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices)
 
 /*********************DESTRUCTOR***********************/
 Matrix::~Matrix() {
-	//cout<<"in destructor "<<this->name<<endl;
 	if (this->twoDArray) {
 		for (size_t i = 0; i<this->rows; i++)
 			delete[] this->twoDArray[i];
@@ -444,7 +440,7 @@ void Matrix::copyMatrix(const Matrix* A) {
 
 /***********OPERATORS*****************/
 //Assignment Operators:
-Matrix& Matrix::operator=(Matrix& A) {
+Matrix& Matrix::operator=(Matrix A) {
 	this->copyMatrix(&A);
 	return *this;
 }
@@ -455,44 +451,44 @@ Matrix& Matrix::operator=(double value) {
 }
 
 //Mathematical Operators:
-Matrix& Matrix::operator+(Matrix& A) {
+Matrix Matrix::operator+(Matrix& A) {
 	Matrix* result = add(*this, A);
 	return *result;
 }
-Matrix& Matrix::operator-(Matrix& A) {
+Matrix Matrix::operator-(Matrix& A) {
 	Matrix* result = subtract(*this, A);
 	return *result;
 }
-Matrix& Matrix::operator+(double value) {
+Matrix Matrix::operator+(double value) {
 	Matrix *temp = new Matrix, *result;
 	temp->setNum(value);
 	result = add(*this, *temp);
 	return *result;
 }
-Matrix& Matrix::operator-(double value) {
+Matrix Matrix::operator-(double value) {
 	Matrix *temp = new Matrix, *result;
 	temp->setNum(value);
 	result = subtract(*this, *temp);
 	return *result;
 }
-Matrix& Matrix::operator*(Matrix& A) {
+Matrix Matrix::operator*(Matrix& A) {
 	Matrix* result = product(*this, A);
 	return *result;
 }
 
-Matrix& Matrix::operator*(double value) {
+Matrix Matrix::operator*(double value) {
 	Matrix  *temp = new Matrix, *result;
 	temp->setNum(value);
 	result = product(*this, *temp);
 	return *result;
 }
 
-Matrix& Matrix::operator/(Matrix& A) {
+Matrix Matrix::operator/(Matrix& A) {
 	Matrix* result = divide(*this, A);
 	return *result;
 }
 
-Matrix& Matrix::operator/(double value) {
+Matrix Matrix::operator/(double value) {
 	Matrix *temp = new Matrix, *result;
 	temp->setNum(value);
 	result = divide(*this, *temp);
@@ -723,14 +719,14 @@ Matrix* Matrix::pseudoDiv(Matrix& A, Matrix& B) {
 			for (size_t j = 0; j< temp->columns; j++) {
 				if (B.twoDArray[i][j] == 0.0) {
 					delete temp;
-					throw("nooo");
+					throw("undefined value");
 				}
 				temp->twoDArray[i][j] = A.num / B.twoDArray[i][j];
 			}
 		return temp;
 	}
 	else if (!A.notMatrix && B.notMatrix) {  //matrix ./ scalar
-		if (B.num == 0.0) throw("nooo");
+		if (B.num == 0.0) throw("undefined value");
 		Matrix* temp = new Matrix;
 		temp->setSize(A.rows, A.columns);
 		for (size_t i = 0; i<temp->rows; i++)
@@ -746,7 +742,7 @@ Matrix* Matrix::pseudoDiv(Matrix& A, Matrix& B) {
 			for (size_t j = 0; j<(temp->columns); j++) {
 				if (B.twoDArray[i][j] == 0.0) {
 					delete temp;
-					throw("nooo");
+					throw("undefined value");
 				}
 				temp->twoDArray[i][j] = A.twoDArray[i][j] / B.twoDArray[i][j];
 			}
@@ -775,6 +771,7 @@ Matrix* Matrix::inverse() {
 	double det = this->determinant();
 	if (det == 0)throw("Matrix has no inverse.");
 	det = 1.0 / det;
+
 	Matrix* temp = new Matrix;
 	temp->setSize(this->rows, this->columns);
 	Matrix* temp2 = new Matrix;
@@ -805,7 +802,7 @@ Matrix* Matrix::inverse() {
 
 Matrix* Matrix::transpose() {
 	Matrix* temp = new Matrix;
-	temp->setSize((this->columns), (this->rows));
+	temp->setSize(this->columns, this->rows);
 	for (size_t i = 0; i<this->columns; i++)
 		for (size_t j = 0; j<this->rows; j++)
 			temp->twoDArray[i][j] = this->twoDArray[j][i];
@@ -829,6 +826,19 @@ Matrix* Matrix::cofactor() {     //el plus wel minus hattwaza3 3ala el elements
 	return temp;
 }
 
+void print(double** a, int n)
+{
+	for (int i = 0; i<n; i++)
+	{
+		for (int j = 0; j<n; j++)
+		{
+			cout << a[i][j] << "	";
+		}
+		cout << endl;
+	}
+	cout << "================================" << endl;
+}
+
 double Matrix::determinant(bool minor, unsigned posRow, unsigned posCol) {
 	//di halet el determinant el tabee3y elly ana bas 3ayz keyamo
 	if (!this->is_square())throw("Dimensions Error (Determinant).");
@@ -838,194 +848,393 @@ double Matrix::determinant(bool minor, unsigned posRow, unsigned posCol) {
 			return ((this->twoDArray[0][0])*(this->twoDArray[1][1]) - (this->twoDArray[1][0])*(this->twoDArray[0][1]));
 		else {   //Determinant
 
-			unsigned int n, i, j, k;
-
-			n = this->rows;                //the order of the matrix
-			float** a = new float *[n];
-			for (size_t i = 0; i<n; i++)
-				a[i] = new float[n];
-
 			double det = 1;
-			int flag = 0;
+			unsigned int n = this->rows;
+			double**a = new double*[n];
+			for (size_t i = 0; i<n; i++)
+				a[i] = new double[n];
 
-			for (i = 0; i<n; i++)
-				for (j = 0; j<n; j++)
-					a[i][j] = this->twoDArray[i][j];    //input the elements of array
-			for (i = 0; i<n; i++)                    //Pivotisation
-				for (k = i + 1; k<n; k++)
-					if (fabs(a[i][i])<fabs(a[k][i])) {
-						flag++;
-						for (j = 0; j<n; j++) {
-							double temp = a[i][j];
-							a[i][j] = a[k][j];
-							a[k][j] = temp;
+			//filling a[][]
+
+			for (size_t i = 0; i<n; i++)
+			{
+				for (size_t j = 0; j<n; j++)
+				{
+					a[i][j] = this->twoDArray[i][j];
+				}
+
+			}
+
+
+			//check if tri of zeros
+			int zero_tri_flag = 0;
+
+			for (size_t i = 0; i<n; i++)
+			{
+				for (size_t j = 0; j<i; j++)
+				{
+					if (a[i][j] != 0 && a[i][j] != -0)
+					{
+						zero_tri_flag = 1;
+						break;
+
+					}
+				}
+				if (zero_tri_flag == 1)break;
+			}
+
+			if (zero_tri_flag == 0)
+			{
+				for (size_t i = 0; i<n; i++)
+				{
+					det = det * a[i][i];
+				}
+				return det;
+			}
+
+			else
+			{
+				int col_piv_flag = 0;
+				zero_tri_flag = 0;
+
+
+				for (size_t i = 0; i<n - 1; i++)
+				{
+					//largest pivot
+					double largest_pivot = a[i][i];
+					unsigned int index_of_largest_pivot = i;
+					for (unsigned int o = i + 1; o<n; o++)
+					{
+						if (fabs(a[o][i])>fabs(largest_pivot))
+						{
+							largest_pivot = a[o][i];
+							index_of_largest_pivot = o;
 						}
+					}
+					if (index_of_largest_pivot != i)
+					{
+						for (size_t j = 0; j<n; j++)
+						{
+							double temp;
+							temp = a[index_of_largest_pivot][j];
+							a[index_of_largest_pivot][j] = a[i][j];
+							a[i][j] = temp;
+						}
+						det = det*-1;
+
+					}
+
+					int zero_tri_flag1 = 0;
+					for (size_t x = 0; x<n; x++)
+					{
+						for (size_t y = 0; y<x; y++)
+						{
+							if (a[x][y] != 0 && a[x][y] != -0)
+							{
+								zero_tri_flag1 = 1;
+								break;
+							}
+						}
+						if (zero_tri_flag1 == 1)break;
+					}
+					if (zero_tri_flag1 == 0)
+					{
+						for (size_t j = 0; j<n; j++)
+						{
+							det = det * a[j][j];
+						}
+						return det;
+					}
+					zero_tri_flag1 = 0;
+
+
+					int in_while_flag = 0;
+					if (a[i][i] == 0 || a[i][i] == -0)
+					{
+						in_while_flag = 1;
+						//swap with the lower row
+
+						for (size_t f = i + 1; f<n; f++)
+						{
+							if (a[f][i] != 0 && a[f][i] != -0)
+							{
+
+								for (size_t j = 0; j<n; j++)
+								{
+									double temp;
+									temp = a[f][j];
+									a[f][j] = a[i][j];
+									a[i][j] = temp;
+								}
+
+								col_piv_flag = 1;
+								break;
+							}
+
+						}
+
+						det = det *-1;
+
+						int zero_tri_flag1 = 0;
+						for (size_t x = 0; x<n; x++)
+						{
+							for (size_t y = 0; y<x; y++)
+							{
+								if (a[x][y] != 0 && a[x][y] != -0)
+								{
+									zero_tri_flag1 = 1;
+									break;
+								}
+							}
+							if (zero_tri_flag1 == 1)break;
+						}
+						if (zero_tri_flag1 == 0)
+						{
+							for (size_t j = 0; j<n; j++)
+							{
+								det = det * a[j][j];
+							}
+							return det;
+						}
+						zero_tri_flag1 = 0;
 					}
 
 
-			for (i = 0; i<n - 1; i++)            //loop to perform the gauss elimination
-				for (k = i + 1; k<n; k++)
-				{
-					double t = a[k][i] / a[i][i];
-					for (j = 0; j<n; j++)
-						a[k][j] = a[k][j] - t*a[i][j];    //make the elements below the pivot elements equal to zero or elimnate the variables
+
+					if (col_piv_flag == 0 && in_while_flag == 1)
+					{
+						in_while_flag = 0;
+						col_piv_flag = 1;
+						det = 0;
+						return det;
+					}
+					col_piv_flag = 0;
+					in_while_flag = 0;
+
+
+					//making pivot =1
+					/*det = det * a[i][i];
+					double temp2=a[i][i];
+					for(size_t j =i;j<n;j++)
+					{
+					a[i][j] = a[i][j]/temp2;
+					}*/
+					//amsek kol el rows ely t7t el i  w adrab el row bta3 el pivot fel elemnt ely ta7t el pivot a[i+1][i] w aminuso meno
+					for (size_t k = i + 1; k<n; k++)
+					{
+						double temp = a[k][i] / a[i][i];
+
+						for (size_t j = i; j<n; j++)
+						{
+							a[k][j] = a[k][j] - temp * a[i][j];
+							//if(fabs(a[k][i])<(pow(10,-15)))a[k][i]=0;
+							a[k][i] = 0;
+						}
+					}
+
+					//since change in matrix therefore check for zero tri
+
+					int zero_tri_flag2 = 0;
+
+					for (size_t x = 0; x<n; x++)
+					{
+						for (size_t y = 0; y<x; y++)
+						{
+							if (a[x][y] != 0 && a[x][y] != -0)
+							{
+								zero_tri_flag2 = 1;
+								break;
+							}
+						}
+						if (zero_tri_flag2 == 1)break;
+					}
+					if (zero_tri_flag2 == 0)
+					{
+						for (size_t j = 0; j<n; j++)
+						{
+							det = det * a[j][j];
+						}
+						return det;
+					}
+
+					zero_tri_flag2 = 0;
 				}
-
-
-
-			for (i = 0; i<n; i++) {
-				det = det*a[i][i];
 			}
-			if (flag % 2 == 0) {
-				det = det;
-			}
-			else {
-				det = -det;
-			}
-
-			return det;
 		}
 	}
 	//di halet el determinant bta3 el submatrix 3ashan akamel beh el inverse
 	else {
 		Matrix* temp = new Matrix;
-		temp->setSize((this->rows) - 1, (this->columns) - 1);
+		temp->setSize(this->rows - 1, this->columns - 1);
+
 		for (size_t i = 0; i<temp->rows; i++)
 			for (size_t j = 0; j<temp->columns; j++)
 			{
 
-				unsigned int x = i<posRow ? i : i + 1;
-				unsigned int y = j<posCol ? j : i + 1;
+				size_t x = i<posRow ? i : i + 1;
+				size_t y = j<posCol ? j : j + 1;
 				//cout<<posRow<<"  "<<posRow<<"  "<<x<<"  "<<y<<endl;
 				temp->twoDArray[i][j] = this->twoDArray[x][y];
 			}
-
-		/* size_t subRow=0;
-		for(size_t i=0;i<this->rows;i++){
-		size_t subCol=0;
-		if(i==posRow)continue;
-		for(size_t j=0;j<this->columns;j++){
-		if(j==posCol)continue;
-		temp->twoDArray[subRow][subCol++]=this->twoDArray[i][j];
-		}
-		subRow++;
-		}*/
 		return temp->determinant();
 	}
+	throw("Can't Solve Determinant.");
 }
 
-void Matrix::eye(unsigned int rows/*=0*/, unsigned int columns/*=0*/) {
-	if (rows == 0 && columns == 0) {
-		this->num = 1.0;
-		return;
+void Matrix::eye(unsigned int rows/*=0*/, unsigned int cols/*=0*/) {
+	if (rows == 0 || cols == 0) throw("Dimension error (eye).");
+	this->setSize(rows, cols);
+	for (size_t i = 0; i<this->rows; i++)
+		for (size_t j = 0; j<this->columns; j++)
+			this->twoDArray[i][j] = (i == j) ? 1.0 : 0.0;
+}
+
+void Matrix::ones(unsigned int rows/*=0*/, unsigned int cols/*=0*/) {
+	if (rows == 0 || cols == 0) throw("Dimension error (ones).");
+	this->setSize(rows, cols);
+	for (size_t i = 0; i<this->rows; i++)
+		for (size_t j = 0; j<this->columns; j++)
+			this->twoDArray[i][j] = 1.0;
+}
+
+void Matrix::zeros(unsigned int rows/*=0*/, unsigned int cols/*=0*/) {
+	if (rows == 0 || cols == 0) throw("Dimension error (ones).");
+	this->setSize(rows, cols);
+	for (size_t i = 0; i<this->rows; i++)
+		for (size_t j = 0; j<this->columns; j++)
+			this->twoDArray[i][j] = 0.0;
+}
+
+void Matrix::random(unsigned int rows/*=0*/, unsigned int cols/*=0*/) {
+	if (rows == 0 || cols == 0) throw("Dimension error (ones).");
+	this->setSize(rows, cols);
+	for (size_t i = 0; i<this->rows; i++)
+		for (size_t j = 0; j<this->columns; j++)
+			this->twoDArray[i][j] = (double)rand() / RAND_MAX;
+}
+
+Matrix* Matrix::sinMatrix() {
+	Matrix *temp = new Matrix;
+	if (this->notMatrix) {
+		temp->setNum(sin(this->num));
 	}
-	else if (rows == 0 || columns == 0) throw("Dimension error (eye).");
-	this->setSize(rows, columns);
-	for (size_t i = 0; i<this->rows; i++) {
-		for (size_t j = 0; j<this->columns; j++) {
-			this->twoDArray[i][j] = (i == j) ? 1 : 0;
+	else {
+		temp->setSize(this->rows, this->columns);
+		for (unsigned int i = 0; i<rows; i++)
+			for (unsigned int j = 0; j<columns; j++)
+				temp->twoDArray[i][j] = sin(this->twoDArray[i][j]);
+	}
+	return temp;
+}
+
+
+Matrix* Matrix::powerMatrix(Matrix &M, Matrix&P) {
+	if (!M.notMatrix && P.notMatrix) {  //matrix .^ scalar
+		Matrix* temp = new Matrix;
+		temp->setSize(M.rows, M.columns);
+		for (size_t i = 0; i<temp->rows; i++)
+			for (size_t j = 0; j<(temp->columns); j++)
+				temp->twoDArray[i][j] =pow(M.twoDArray[i][j] , P.num);
+		return temp;
+	}
+	else if (M.notMatrix && P.notMatrix) {				//matrix .^ matrix
+		if (M.rows != P.rows || M.columns != P.columns) throw("Dimensions Error.");
+		Matrix* temp = new Matrix;
+		temp->setNum(pow(M.num,P.num));
+		return temp;
+	}
+}
+
+
+Matrix* Matrix::sqrtMatrix() {
+	Matrix *temp = new Matrix;
+	if (this->notMatrix) {
+		temp->setNum(sqrt(this->num));
+	}
+	else
+	{
+		temp->setSize(this->rows, this->columns);
+		for (unsigned int i = 0; i < rows; i++)
+		{
+			for (unsigned int j = 0; j < columns; j++)
+			{
+				if (this->twoDArray[i][j] < 0) { throw("complex results aren't supported "); }
+				else temp->twoDArray[i][j] = sqrt(this->twoDArray[i][j]);
+			}
 		}
 	}
-}
-
-void Matrix::ones(unsigned int rows/*=0*/,unsigned int cols/*=0*/){
-    if(rows==0 || cols==0) throw("Dimension error (ones).");
-    this->setSize(rows,cols);
-    for(size_t i =0 ;i<this->rows;i++)
-        for(size_t j=0;j<this->columns;j++)
-            this->twoDArray[i][j] = 1.0;
-}
-
-void Matrix::random(unsigned int rows/*=0*/,unsigned int cols/*=0*/){
-    if(rows==0 || cols==0) throw("Dimension error (ones).");
-    this->setSize(rows,cols);
-    for(size_t i =0 ;i<this->rows;i++)
-        for(size_t j=0;j<this->columns;j++)
-            this->twoDArray[i][j] = (double)rand() / RAND_MAX;
-}
-
-Matrix* Matrix::sinMatrix(){
-	Matrix *temp = new Matrix;
-	if(this->notMatrix){
-        temp->setNum(sin(this->num));
-	}
-	else{
-        temp -> setSize(this->rows,this->columns);
-        for(unsigned int i = 0;i<rows;i++)
-            for(unsigned int j = 0; j<columns;j++)
-                temp->twoDArray[i][j] = sin(this->twoDArray[i][j]);
-	}
-    return temp;
-}
-
-Matrix* Matrix::cosMatrix(){
-	Matrix *temp = new Matrix;
-	if(this->notMatrix){
-        temp->setNum(cos(this->num));
-	}
-	else{
-        temp -> setSize(this->rows,this->columns);
-        for(unsigned int i = 0;i<rows;i++)
-            for(unsigned int j = 0; j<columns;j++)
-                temp->twoDArray[i][j] = cos(this->twoDArray[i][j]);
-    }
 	return temp;
 }
 
-Matrix* Matrix::tanMatrix(){
+
+Matrix* Matrix::cosMatrix() {
 	Matrix *temp = new Matrix;
-	if(this->notMatrix){
-        temp->setNum(tan(this->num));
+	if (this->notMatrix) {
+		temp->setNum(cos(this->num));
 	}
-	else{
-        temp -> setSize(this->rows,this->columns);
-        for(unsigned int i = 0;i<rows;i++)
-            for(unsigned int j = 0; j<columns;j++){
-                if(this->twoDArray[i][j] == PI/2.0) throw/* Handle Here */;
-                temp->twoDArray[i][j] = tan(this->twoDArray[i][j]);
-            }
+	else {
+		temp->setSize(this->rows, this->columns);
+		for (unsigned int i = 0; i<rows; i++)
+			for (unsigned int j = 0; j<columns; j++)
+				temp->twoDArray[i][j] = cos(this->twoDArray[i][j]);
 	}
 	return temp;
 }
 
-Matrix* Matrix::asinMatrix(){
+Matrix* Matrix::tanMatrix() {
 	Matrix *temp = new Matrix;
-	if(this->notMatrix){
-        temp->setNum(asin(this->num));
+	if (this->notMatrix) {
+		temp->setNum(tan(this->num));
 	}
-	else{
-        temp -> setSize(this->rows,this->columns);
-        for(unsigned int i = 0;i<rows;i++)
-            for(unsigned int j = 0; j<columns;j++)
-                temp->twoDArray[i][j] = asin(this->twoDArray[i][j]);
+	else {
+		temp->setSize(this->rows, this->columns);
+		for (unsigned int i = 0; i<rows; i++)
+			for (unsigned int j = 0; j<columns; j++) {
+				if (this->twoDArray[i][j] == PI / 2.0) throw/* Handle Here */;
+				temp->twoDArray[i][j] = tan(this->twoDArray[i][j]);
+			}
 	}
 	return temp;
 }
 
-Matrix* Matrix::acosMatrix(){
+Matrix* Matrix::asinMatrix() {
 	Matrix *temp = new Matrix;
-	if(this->notMatrix){
-        temp->setNum(acos(this->num));
+	if (this->notMatrix) {
+		temp->setNum(asin(this->num));
 	}
-	else{
-        temp -> setSize(this->rows,this->columns);
-        for(unsigned int i = 0;i<rows;i++)
-            for(unsigned int j = 0; j<columns;j++)
-                temp->twoDArray[i][j] = acos(this->twoDArray[i][j]);
+	else {
+		temp->setSize(this->rows, this->columns);
+		for (unsigned int i = 0; i<rows; i++)
+			for (unsigned int j = 0; j<columns; j++)
+				temp->twoDArray[i][j] = asin(this->twoDArray[i][j]);
 	}
 	return temp;
 }
 
-Matrix* Matrix::atanMatrix(){
+Matrix* Matrix::acosMatrix() {
 	Matrix *temp = new Matrix;
-	if(this->notMatrix){
-        temp->setNum(sin(this->num));
+	if (this->notMatrix) {
+		temp->setNum(acos(this->num));
 	}
-	else{
-        temp -> setSize(this->rows,this->columns);
-        for(unsigned int i = 0;i<rows;i++)
-            for(unsigned int j = 0; j<columns;j++)
-                temp->twoDArray[i][j] = atan(this->twoDArray[i][j]);
+	else {
+		temp->setSize(this->rows, this->columns);
+		for (unsigned int i = 0; i<rows; i++)
+			for (unsigned int j = 0; j<columns; j++)
+				temp->twoDArray[i][j] = acos(this->twoDArray[i][j]);
+	}
+	return temp;
+}
+
+Matrix* Matrix::atanMatrix() {
+	Matrix *temp = new Matrix;
+	if (this->notMatrix) {
+		temp->setNum(sin(this->num));
+	}
+	else {
+		temp->setSize(this->rows, this->columns);
+		for (unsigned int i = 0; i<rows; i++)
+			for (unsigned int j = 0; j<columns; j++)
+				temp->twoDArray[i][j] = atan(this->twoDArray[i][j]);
 	}
 	return temp;
 }
@@ -1159,44 +1368,16 @@ Matrix* Matrix::subMatrix(string boundaries) {
 }
 /***********************END SUBMATRIX************************/
 
-Matrix* Matrix::concatenateHor(Matrix& A,Matrix& B)
-{
-    if(A.rows != B.rows)throw("Cannot horizontally concatenate matrices with different heights.");
+//Matrix* Matrix::concatenate(Matrix& A,Matrix& B){
+//    if(A.rows != A.columns)throw("Cannot concatenate matrices with different heights.");
+//
+//}
 
-	int newColumns = A.columns + B.columns;
-	int newRows = A.rows;
-	Matrix * concMatrix = new Matrix;
-	concMatrix->setSize(newRows, newColumns);
-	for (size_t i = 0; i < newRows; i++)
-	{
-		for (size_t j = 0; j < newColumns; j++)
-		{
-			if (j < A.columns)concMatrix->setElement(i, j, A.twoDArray[i][j]);
-			else concMatrix->setElement(i, j, B.twoDArray[i][j-A.columns]);
-		}
-	}
-	return concMatrix;
+std::string Converttostring(float number) {
+	std::ostringstream buff;
+	buff << fixed << setprecision(2) << number;
+	return buff.str();
 }
-
-Matrix* Matrix::concatenateVer(Matrix& A, Matrix& B)
-{
-	if (A.columns != B.columns)throw("Cannot vertically concatenate matrices with different widths.");
-
-	int newColumns = A.columns;
-	int newRows = A.rows+B.rows;
-	Matrix * concMatrix = new Matrix;
-	concMatrix->setSize(newRows, newColumns);
-	for (size_t i = 0; i < newRows; i++)
-	{
-		for (size_t j = 0; j < newColumns; j++)
-		{
-			if (i < A.rows)concMatrix->setElement(i, j, A.twoDArray[i][j]);
-			else concMatrix->setElement(i, j, B.twoDArray[i-A.rows][j]);
-		}
-	}
-	return concMatrix;
-}
-
 void Matrix::printMatrix(bool name/*=true*/, unsigned int num_equal/*=0*/, const vector<string>&arrayOfNames) {
 
 	if (name == false) {
@@ -1223,7 +1404,6 @@ void Matrix::printMatrix(bool name/*=true*/, unsigned int num_equal/*=0*/, const
 					sprintf(temp, "%g", this->twoDArray[i][j]);
 					unsigned int outputLen = strlen(temp);
 					printf("%g", this->twoDArray[i][j]);
-					//cout<<fixed<<std::setprecision(2)<<this->twoDArray[i][j];
 
 					// printing no. of spaces equal to the size of the longest matrix - size of displayed matrix + 3 as a tolerance
 					for (size_t k = 0; k<longestsize - outputLen + 3; k++) {
@@ -1274,3 +1454,781 @@ void Matrix::printMatrix(bool name/*=true*/, unsigned int num_equal/*=0*/, const
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+struct operators
+{
+	int pos;
+	string op;
+};
+
+/*function 3shan mafesh temp wa7ed ytkrar marten*/
+void storeTemp(Matrix & M, vector<Matrix>& storedMatrices)
+{
+	int index = -1;
+	for (size_t i = 0; i < storedMatrices.size(); i++)
+	{
+		if (M.getName() == storedMatrices[i].getName())
+		{
+			index = i; break;
+		}
+	}
+	if (index == -1)storedMatrices.push_back(M);
+	else storedMatrices[index] = M;
+}
+
+
+
+
+/*MultiOperations Handeling Function*/
+
+Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string>& systemCommands)
+{
+
+	//getting the operators in the i/p
+	vector <operators> ops(0);
+	int openedBracketsNo = 0;
+	int closedBracketsNo = 0;
+	operators currentOp;
+	Matrix* temp = new Matrix;
+
+	static string temporaryName = "temp11"; //m3mlthash 00 3shan el 0 e3tbrha ely hya bta3t el termination de wtala3 error
+
+	if (RHS.find("+") == RHS.npos && RHS.find("-") == RHS.npos && RHS.find("*") == RHS.npos && RHS.find("/") == RHS.npos && RHS.find("inv") == RHS.npos && RHS.find("'") == RHS.npos && RHS.find("`") == RHS.npos && RHS.find("det") == RHS.npos && RHS.find('(') == RHS.npos && RHS.find(')') == RHS.npos && RHS.find('[') == RHS.npos && RHS.find(']') == RHS.npos && RHS.find('^') == RHS.npos)
+	{
+		if (RHS.find_first_not_of(numbers) == RHS.npos) {        //numbers
+			double value = 0;
+			char* e;
+			value = strtod(RHS.c_str(), &e);
+			if (*e != 0) throw("Invalid number!");
+			Matrix temp = value;
+			temp.setName(temporaryName);
+			storeTemp(temp, storedMatrices);
+			if (temporaryName[5] < '9')temporaryName[5]++;
+			else
+			{
+				temporaryName[5] = '1';
+				(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+			}
+			return temp;
+		}
+		for (size_t i = 0; i < storedMatrices.size(); i++)
+		{
+			if (storedMatrices[i].getName() == RHS)
+			{
+				Matrix temp = storedMatrices[i];
+				return temp;
+			}
+		}
+		throw("Error no stored matrix with this name");
+	}
+
+	for (size_t i = 0; i < RHS.length(); i++)
+	{
+
+		if (RHS[i] == '(')
+			openedBracketsNo++;
+		else if (RHS[i] == ')')
+			closedBracketsNo++;
+		else if (RHS[i] == '.')
+		{
+			if (RHS[i + 1] == '+' || RHS[i + 1] == '-' || RHS[i + 1] == '/' || RHS[i + 1] == '*')
+			{
+				currentOp.op = RHS[i, i + 1];
+				currentOp.pos = i;
+				ops.push_back(currentOp);
+				i++;
+			}
+		}
+		else if (RHS[i] == '+' || RHS[i] == '-' || RHS[i] == '/' || RHS[i] == '*')
+		{
+			currentOp.op = RHS[i];
+			currentOp.pos = i;
+			ops.push_back(currentOp);
+		}
+	}
+	if (openedBracketsNo > closedBracketsNo)throw("Error opened bracket without closure");
+	if (openedBracketsNo < closedBracketsNo)throw("Error closed bracket without opening");
+
+	//Brackets (including the det, inv and trig functions brackets)
+	while (openedBracketsNo > 0)
+	{
+		int openBIndex, closeBIndex;
+		openBIndex = RHS.rfind('(');
+		closeBIndex = RHS.substr(openBIndex).find(')') + openBIndex;
+		if (closeBIndex == RHS.npos)throw("Error opened bracket without closure");
+
+		string insideBrackets = RHS.substr(openBIndex + 1, closeBIndex - (openBIndex + 1));
+		Matrix temporary;
+		temporary = multiOpHandling(insideBrackets, storedMatrices, systemCommands);
+		RHS.erase(openBIndex + 1, closeBIndex - (openBIndex + 1));
+		RHS.insert(openBIndex + 1, temporary.getName());
+		if (temporaryName[5] < '9')temporaryName[5]++;
+		else
+		{
+			temporaryName[5] = '1';
+			(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+		}
+		closeBIndex = RHS.substr(openBIndex).find(')') + openBIndex;
+
+
+		bool oneOperandOp = false;
+		bool inverseTrigDet = false;
+
+		if (openBIndex >= 4)
+		{
+			/* INVERSE TRIGONOMETRIC */
+			if (RHS[openBIndex - 1] == 'n' && RHS[openBIndex - 2] == 'i' && RHS[openBIndex - 3] == 's' && RHS[openBIndex - 4] == 'a'
+				|| RHS[openBIndex - 1] == 's' && RHS[openBIndex - 2] == 'o' && RHS[openBIndex - 3] == 'c' && RHS[openBIndex - 4] == 'a'
+				|| RHS[openBIndex - 1] == 'n' && RHS[openBIndex - 2] == 'a' && RHS[openBIndex - 3] == 't' && RHS[openBIndex - 4] == 'a')
+			{
+				oneOperandOp = true;
+				inverseTrigDet = true;
+				string operand = temporary.getName();
+				bool found = false;
+				char functionDet = RHS[openBIndex - 2];
+
+				for (unsigned int i = 0; i < storedMatrices.size(); i++)
+					if (operand == storedMatrices[i].getName()) {
+						found = true;
+						*temp = storedMatrices[i];
+						break;
+					}
+				if (!found) {
+					if (operand == "PI")  *temp = PI;
+					else if (operand.find_first_not_of(numbers) != operand.npos) throw("Operand not found.");
+					else *temp = strtod(operand.c_str(), NULL);
+				}
+
+				switch (functionDet)
+				{
+				case 'i':
+					temp = temp->asinMatrix();
+					break;
+				case 'o':
+					temp = temp->acosMatrix();
+					break;
+				case 'a':
+					temp = temp->atanMatrix();
+					break;
+				}
+				temp->setName(temporaryName);
+
+				storeTemp(*temp, storedMatrices);
+				RHS.erase(openBIndex - 4, closeBIndex - (openBIndex - 5));
+				openedBracketsNo--; closedBracketsNo--;
+				RHS.insert(openBIndex - 4, temporaryName);
+				if (temporaryName[5] < '9')temporaryName[5]++;
+				else
+				{
+					temporaryName[5] = '1';
+					(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+				}
+			}
+
+			/*Square Root*/
+			if (RHS[openBIndex - 1] == 't' && RHS[openBIndex - 2] == 'r' && RHS[openBIndex - 3] == 'q' && RHS[openBIndex - 4] == 's')
+			{
+				oneOperandOp = true;
+				string operand = temporary.getName();
+				bool found = false;
+				for (unsigned int i = 0; i < storedMatrices.size(); i++)
+					if (operand == storedMatrices[i].getName())
+					{
+						found = true;
+						*temp = storedMatrices[i];
+					}
+				if (!found)
+				{
+
+					if (operand.find_first_not_of(numbers) != operand.npos) throw("Operand not found.");
+					if (operand.find_first_not_of(numbers) == operand.npos && operand.find("temp") == operand.npos) {  //if the user used a scalar nonsaved value
+						char *e;
+						double value = strtod(operand.c_str(), &e);
+						if (*e != 0) throw("invalid number.");
+						else *temp = value;
+					}
+				}
+
+				temp = temp->sqrtMatrix();
+				temp->setName(temporaryName);
+
+				storeTemp(*temp, storedMatrices);
+
+				RHS.erase(openBIndex - 4, closeBIndex - (openBIndex - 5));
+				openedBracketsNo--; closedBracketsNo--;
+				RHS.insert(openBIndex - 4, temporaryName);
+				if (temporaryName[5] < '9')temporaryName[5]++;
+				else
+				{
+					temporaryName[5] = '1';
+					(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+				}
+			}
+		}
+
+		if (openBIndex >= 3)
+		{
+
+			//inverse
+			if (RHS[openBIndex - 1] == 'v' && RHS[openBIndex - 2] == 'n' && RHS[openBIndex - 3] == 'i')
+			{
+				oneOperandOp = true;
+				int operandIndex = -1;
+				for (size_t i = 0; i < storedMatrices.size(); i++)
+					if (temporary.getName() == storedMatrices[i].getName())
+						operandIndex = i;
+				if (operandIndex == -1)throw("Operand not defined.");
+				else {
+					if (storedMatrices[operandIndex].is_scalar()) throw("You must enter a matrix.");
+					else
+					{
+						temp = storedMatrices[operandIndex].inverse();
+						temp->setName(temporaryName);
+					}
+				}
+				storeTemp(*temp, storedMatrices);
+
+				RHS.erase(openBIndex - 3, closeBIndex - (openBIndex - 4));
+				openedBracketsNo--; closedBracketsNo--;
+				RHS.insert(openBIndex - 3, temporaryName);
+				if (temporaryName[5] < '9')temporaryName[5]++;
+				else
+				{
+					temporaryName[5] = '1';
+					(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+				}
+			}
+
+			//end inverse
+
+
+			//determinant
+			else if (RHS[openBIndex - 1] == 't' && RHS[openBIndex - 2] == 'e' && RHS[openBIndex - 3] == 'd')
+			{
+				oneOperandOp = true;
+				int operandIndex = -1;
+				for (size_t i = 0; i < storedMatrices.size(); i++)
+				{
+					if (temporary.getName() == storedMatrices[i].getName())
+					{
+						operandIndex = i;
+						break;
+					}
+				}
+				if (operandIndex == -1)throw("Operand not defined.");
+				else {
+					if (storedMatrices[operandIndex].is_scalar()) throw("You must enter a matrix.");
+					else {
+						*temp = storedMatrices[operandIndex].determinant();
+						temp->setName(temporaryName);
+					}
+
+					storeTemp(*temp, storedMatrices);
+
+					RHS.erase(openBIndex - 3, closeBIndex - (openBIndex - 4));
+					openedBracketsNo--; closedBracketsNo--;
+					RHS.insert(openBIndex - 3, temporaryName);
+					if (temporaryName[5] < '9')temporaryName[5]++;
+					else
+					{
+						temporaryName[5] = '1';
+						(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+					}
+				}
+			}
+			//end determinant
+
+
+			//TRIG
+			else if (RHS[openBIndex - 1] == 'n' && RHS[openBIndex - 2] == 'i' && RHS[openBIndex - 3] == 's'
+				|| RHS[openBIndex - 1] == 's' && RHS[openBIndex - 2] == 'o' && RHS[openBIndex - 3] == 'c'
+				|| RHS[openBIndex - 1] == 'n' && RHS[openBIndex - 2] == 'a' && RHS[openBIndex - 3] == 't')
+			{
+				if (!inverseTrigDet)
+				{
+					oneOperandOp = true;
+					string operand = temporary.getName();
+					bool found = false;
+					char functionDet = RHS[openBIndex - 2];
+					for (unsigned int i = 0; i < storedMatrices.size(); i++)
+						if (operand == storedMatrices[i].getName()) {
+							found = true;
+							*temp = storedMatrices[i];
+							break;
+						}
+					if (!found) {
+						if (operand == "PI")  *temp = PI;
+						else if (operand.find_first_not_of(numbers) != operand.npos) throw("Operand not found.");
+						else *temp = strtod(operand.c_str(), NULL);
+					}
+
+					switch (functionDet)
+					{
+					case 'i':
+						temp = temp->sinMatrix();
+						break;
+					case 'o':
+						temp = temp->cosMatrix();
+						break;
+					case 'a':
+						temp = temp->tanMatrix();
+						break;
+					}
+					temp->setName(temporaryName);
+
+					storeTemp(*temp, storedMatrices);
+
+					RHS.erase(openBIndex - 3, closeBIndex - (openBIndex - 4));
+					openedBracketsNo--; closedBracketsNo--;
+					RHS.insert(openBIndex - 3, temporaryName);
+					if (temporaryName[5] < '9')temporaryName[5]++;
+					else
+					{
+						temporaryName[5] = '1';
+						(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+					}
+				}
+			}
+			//ENDTRIG
+
+
+
+		}
+
+		if (!oneOperandOp)
+		{
+			RHS.erase(openBIndex, 1);
+			openedBracketsNo--;
+			RHS.erase(closeBIndex - 1, 1);
+			closedBracketsNo--;
+		}
+
+
+	}
+	//end Brackets
+
+	while (RHS.find('(') != RHS.npos) {
+		RHS.erase(RHS.find('('), 1); openedBracketsNo--;
+	}
+	while (RHS.find(')') != RHS.npos) {
+		RHS.erase(RHS.find(')'), 1); closedBracketsNo--;
+	}
+
+	//transpose
+	while (RHS.find("`") != RHS.npos || RHS.find("'") != RHS.npos)
+	{
+		unsigned int pos;
+		if (RHS.find("`") != RHS.npos)
+			pos = RHS.find("`");
+		else
+			pos = RHS.find("'");
+		string transposeOperand = "";
+		int transposeOperandstart;
+		for (size_t i = pos - 1; i >= 0; i--)
+		{
+			if (i > RHS.length())break;
+			if (RHS[i] == '+' || RHS[i] == '-' || RHS[i] == '*' || RHS[i] == '/' || RHS[i] == ')' || RHS[i] == '(')
+				break;
+			char c = RHS[i];
+			transposeOperandstart = i;
+			transposeOperand = c + transposeOperand;
+		}
+		int operandIndex = -1;
+		for (size_t i = 0; i < storedMatrices.size(); i++)
+		{
+			if (transposeOperand == storedMatrices[i].getName())
+				operandIndex = i;
+		}
+		if (operandIndex == -1)throw("Operand not defined.");
+		else
+		{
+			if (storedMatrices[operandIndex].is_scalar()) throw("You must enter a matrix.");
+			else
+			{
+				temp = storedMatrices[operandIndex].transpose();
+				temp->setName(temporaryName);
+				storeTemp(*temp, storedMatrices);
+
+				RHS.erase(transposeOperandstart, (pos + 1) - transposeOperandstart);
+				RHS.insert(transposeOperandstart, temporaryName);
+				if (temporaryName[5] < '9')temporaryName[5]++;
+				else
+				{
+					temporaryName[5] = '1';
+					(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+				}
+
+			}
+		}
+
+	}  //end transpose
+
+
+
+	   //negate
+	if (RHS.find("+-") != RHS.npos || RHS.find("--") != RHS.npos || RHS.find("^-") != RHS.npos || RHS.find("/-") != RHS.npos || RHS.find("*-") != RHS.npos || RHS.find('-') == 0)
+	{
+		vector <size_t> posNegatives;
+		for (size_t i = 0; i < RHS.length(); i++)
+		{
+			if (RHS[i] == '-')posNegatives.push_back(i);
+		}
+		for (size_t i = posNegatives.size(); i >= 1; i--)
+		{
+			size_t pos = posNegatives[i - 1];
+			if (pos != 0)
+			{
+				if (RHS[pos - 1] != '+' && RHS[pos - 1] != '-' && RHS[pos - 1] != '*' && RHS[pos - 1] != '/')
+					continue;
+			}
+			string negOperand;
+			for (size_t j = pos + 1; j < RHS.length(); j++)
+			{
+				if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == ']' || RHS[j] == '[' || RHS[j] == '^')
+					break;
+				char c = RHS[j];
+				negOperand.push_back(c);
+			}
+			int operandindex = -1;
+			for (size_t j = 0; j < storedMatrices.size(); j++)
+			{
+				if (negOperand == storedMatrices[j].getName())
+					operandindex = j;
+			}
+			if (operandindex == -1)
+			{
+				if (negOperand.find_first_not_of(numbers) != negOperand.npos) throw("Operand not found.");
+				else
+				{
+					temp->setNum(0 - (strtod(negOperand.c_str(), NULL)));
+					temp->setName(temporaryName);
+				}
+			}
+			else
+			{
+				Matrix m = -storedMatrices[operandindex];
+				*temp = m;
+				temp->setName(temporaryName);
+			}
+			RHS.erase(pos, (negOperand.length()+1));
+			RHS.insert(pos, temporaryName);
+			storeTemp(*temp, storedMatrices);
+			if (temporaryName[5] < '9')temporaryName[5]++;
+			else
+			{
+				temporaryName[5] = '1';
+				(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+			}
+		}
+	}
+
+
+	//Power
+	/////////////////////////////////////
+	//////////////////////////////////////
+	////////////////////////////////////////
+	///////////////////////////////////////////
+	///////////////////////////////////////////
+	while (RHS.find('^') != RHS.npos)
+	{
+		Matrix *parameter1 = new Matrix, *parameter2 = new Matrix;
+		string op;
+		int opIndex;
+		vector<string> operands(2);
+		vector<int> operandIndeces(2);
+		for (size_t i = 1; i < RHS.length(); i++)
+		{
+			if (RHS[i] == '.' && (RHS[i + 1] == '^'))
+			{
+				for (size_t j = i; j >= 1; j--)
+				{
+					if (RHS[j - 1] == '+' || RHS[j - 1] == '-' || RHS[j - 1] == '*' || RHS[j - 1] == '/' || RHS[j - 1] == ')' || RHS[j - 1] == '(' || RHS[j - 1] == 39 /* ely hya ' */ || RHS[j - 1] == '`' || RHS[j - 1] == '^' || RHS[j - 1] == ']' || RHS[j - 1] == '[')
+						break;
+					char c = RHS[j - 1];
+					operands[0] = c + operands[0];
+				}
+				for (size_t j = i + 2; j < RHS.length(); j++)
+				{
+					if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == ']' || RHS[j] == '[')
+						break;
+					char c = RHS[j];
+					operands[1].push_back(c);
+				}
+
+				opIndex = i;
+				op = RHS.substr(i, 2);
+				break;
+			}
+			if (RHS[i] == '^')
+			{
+				for (size_t j = i; j >= 1; j--)
+				{
+					if (RHS[j - 1] == '+' || RHS[j - 1] == '-' || RHS[j - 1] == '*' || RHS[j - 1] == '/' || RHS[j - 1] == ')' || RHS[j - 1] == '(' || RHS[j - 1] == 39 /* ely hya ' */ || RHS[j - 1] == '`' || RHS[j - 1] == '^' || RHS[j - 1] == ']' || RHS[j - 1] == '[')
+						break;
+					char c = RHS[j - 1];
+					operands[0] = c + operands[0];
+				}
+				for (size_t j = i + 1; j < RHS.length(); j++)
+				{
+					if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == '^' || RHS[j] == ']' || RHS[j] == '[')
+						break;
+					char c = RHS[j];
+					operands[1].push_back(c);
+				}
+				op = RHS[i];
+				opIndex = i;
+				break;
+			}
+		}
+
+		for (size_t i = 0; i < storedMatrices.size(); i++) {
+			if (operands[0] == storedMatrices[i].getName())
+				operandIndeces[0] = i;
+			if (operands[1] == storedMatrices[i].getName())
+				operandIndeces[1] = i;
+		}
+		bool firstNo = false, secondNo = false;
+		double fNo, sNo;
+
+		if ((operandIndeces[0] == -1 && operands[0].find_first_not_of(alphabets) == operands[0].npos)
+			|| (operandIndeces[1] == -1 && operands[1].find_first_not_of(alphabets) == operands[1].npos)) throw("operand not defined.");
+
+		if (operands[0].find_first_not_of(numbers) == operands[0].npos && operands[0].find("temp") == operands[0].npos) {  //if the user used a scalar nonsaved value
+			char *e;
+			double value = strtod(operands[0].c_str(), &e);
+			if (*e != 0) throw("invalid number.");
+			else *parameter1 = value;
+			firstNo = true;
+			fNo = value;
+		}
+		else *parameter1 = storedMatrices[operandIndeces[0]];
+		if (operands[1].find_first_not_of(numbers) == operands[1].npos && operands[1].find("temp") == operands[1].npos) {
+			char *e;
+			double value = strtod(operands[1].c_str(), &e);
+			if (*e != 0) throw("invalid number.");
+			else *parameter2 = value;
+			secondNo = true;
+			sNo = value;
+		}
+		else *parameter2 = storedMatrices[operandIndeces[1]];
+
+
+		if (firstNo&&secondNo)*temp = pow(fNo, sNo);
+		else
+			temp = Matrix::powerMatrix(*parameter1, *parameter2);
+
+		RHS.erase(opIndex - operands[0].length(), operands[0].length() + operands[1].length() + op.length());
+		RHS.insert(opIndex - operands[0].length(), temporaryName);
+
+		temp->setName(temporaryName);
+		storeTemp(*temp, storedMatrices);
+		if (temporaryName[5] < '9')temporaryName[5]++;
+		else
+		{
+			temporaryName[5] = '1';
+			(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+		}
+
+		delete parameter1;
+		delete parameter2;
+	}
+
+
+
+
+
+
+	while (RHS.find("+") != RHS.npos || RHS.find("-") != RHS.npos || RHS.find("*") != RHS.npos || RHS.find("/") != RHS.npos)
+	{
+
+		Matrix *parameter1 = new Matrix, *parameter2 = new Matrix;
+		string op;
+		int opIndex;
+		vector<string> operands(2);
+		vector<int> operandIndeces(2);
+		bool timesDivideDetect = false;
+		for (size_t i = 1; i < RHS.length(); i++)
+		{
+			if (RHS[i] == '.' && (RHS[i + 1] == '*' || RHS[i + 1] == '/'))
+			{
+				for (size_t j = i; j >= 1; j--)
+				{
+					if (RHS[j - 1] == '+' || RHS[j - 1] == '-' || RHS[j - 1] == '*' || RHS[j - 1] == '/' || RHS[j - 1] == ')' || RHS[j - 1] == '(' || RHS[j - 1] == 39 /* ely hya ' */ || RHS[j - 1] == '`' || RHS[j - 1] == '^' || RHS[j - 1] == ']' || RHS[j - 1] == '[')
+						break;
+					char c = RHS[j - 1];
+					operands[0] = c + operands[0];
+				}
+				for (size_t j = i + 2; j < RHS.length(); j++)
+				{
+					if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == '^' || RHS[j] == ']' || RHS[j] == '[')
+						break;
+					char c = RHS[j];
+					operands[1].push_back(c);
+				}
+				timesDivideDetect = true;
+				opIndex = i;
+				op = RHS.substr(i, 2);
+				break;
+			}
+			if (RHS[i] == '*' || RHS[i] == '/')
+			{
+				for (size_t j = i; j >= 1; j--)
+				{
+					if (RHS[j - 1] == '+' || RHS[j - 1] == '-' || RHS[j - 1] == '*' || RHS[j - 1] == '/' || RHS[j - 1] == ')' || RHS[j - 1] == '(' || RHS[j - 1] == 39 /* ely hya ' */ || RHS[j - 1] == '`' || RHS[j - 1] == '^' || RHS[j - 1] == ']' || RHS[j - 1] == '[')
+						break;
+					char c = RHS[j - 1];
+					operands[0] = c + operands[0];
+				}
+				for (size_t j = i + 1; j < RHS.length(); j++)
+				{
+					if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == '^' || RHS[j] == ']' || RHS[j] == '[')
+						break;
+					char c = RHS[j];
+					operands[1].push_back(c);
+				}
+				op = RHS[i];
+				opIndex = i;
+				timesDivideDetect = true;
+				break;
+			}
+
+		}
+
+		if (timesDivideDetect == false)
+		{
+			for (size_t i = 1; i < RHS.length(); i++)
+			{
+				if (RHS[i] == '.' && (RHS[i + 1] == '-' || RHS[i + 1] == '+'))
+				{
+					for (size_t j = i; j >= 1; j--)
+					{
+						if (RHS[j - 1] == '+' || RHS[j - 1] == '-' || RHS[j - 1] == '*' || RHS[j - 1] == '/' || RHS[j - 1] == ')' || RHS[j - 1] == '(' || RHS[j - 1] == 39 /* ely hya ' */ || RHS[j - 1] == '`' || RHS[j - 1] == '^' || RHS[j - 1] == ']' || RHS[j - 1] == '[')
+							break;
+						char c = RHS[j - 1];
+						operands[0] = c + operands[0];
+					}
+					for (size_t j = i + 2; j < RHS.length(); j++)
+					{
+						if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == '^' || RHS[j] == ']' || RHS[j] == '[')
+							break;
+						char c = RHS[j];
+						operands[1].push_back(c);
+					}
+					opIndex = i;
+					op = RHS.substr(i, 2);
+					break;
+				}
+				if (RHS[i] == '+' || RHS[i] == '-')
+				{
+					for (size_t j = i; j >= 1; j--)
+					{
+						if (RHS[j - 1] == '+' || RHS[j - 1] == '-' || RHS[j - 1] == '*' || RHS[j - 1] == '/' || RHS[j - 1] == ')' || RHS[j - 1] == '(' || RHS[j - 1] == 39 /* ely hya ' */ || RHS[j - 1] == '`' || RHS[j - 1] == '^' || RHS[j - 1] == ']' || RHS[j - 1] == '[')
+							break;
+						char c = RHS[j - 1];
+						operands[0] = c + operands[0];
+					}
+					for (size_t j = i + 1; j < RHS.length(); j++)
+					{
+						if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == '^' || RHS[j] == ']' || RHS[j] == '[')
+							break;
+						char c = RHS[j];
+						operands[1].push_back(c);
+					}
+					op = RHS[i];
+					opIndex = i;
+					break;
+				}
+			}
+		}
+
+		for (size_t i = 0; i < storedMatrices.size(); i++) {
+			if (operands[0] == storedMatrices[i].getName())
+				operandIndeces[0] = i;
+			if (operands[1] == storedMatrices[i].getName())
+				operandIndeces[1] = i;
+		}
+
+		if ((operandIndeces[0] == -1 && operands[0].find_first_not_of(alphabets) == operands[0].npos)
+			|| (operandIndeces[1] == -1 && operands[1].find_first_not_of(alphabets) == operands[1].npos)) throw("operand not defined.");
+
+		if (operands[0].find_first_not_of(numbers) == operands[0].npos && operands[0].find("temp") == operands[0].npos) {  //if the user used a scalar nonsaved value, ex:(a = 1 ./ b)
+			char *e;
+			double value = strtod(operands[0].c_str(), &e);
+			if (*e != 0) throw("invalid number.");
+			else *parameter1 = value;
+		}
+		else *parameter1 = storedMatrices[operandIndeces[0]];
+		if (operands[1].find_first_not_of(numbers) == operands[1].npos && operands[1].find("temp") == operands[1].npos) {
+			char *e;
+			double value = strtod(operands[1].c_str(), &e);
+			if (*e != 0) throw("invalid number.");
+			else *parameter2 = value;
+		}
+		else *parameter2 = storedMatrices[operandIndeces[1]];
+
+
+		if (op == "+") *temp = *parameter1 + *parameter2;
+		else if (op == "-") *temp = *parameter1 - *parameter2;
+		else if (op == "*") *temp = *parameter1 * *parameter2;
+		else if (op == "/") *temp = *parameter1 / *parameter2;
+		else if (op == ".+") temp = Matrix::pseudoAdd(*parameter1, *parameter2);
+		else if (op == ".-") temp = Matrix::pseudoSubtract(*parameter1, *parameter2);
+		else if (op == ".*") temp = Matrix::pseudoProduct(*parameter1, *parameter2);
+		else if (op == "./") temp = Matrix::pseudoDiv(*parameter1, *parameter2);
+
+		RHS.erase(opIndex - operands[0].length(), operands[0].length() + operands[1].length() + op.length());
+		RHS.insert(opIndex - operands[0].length(), temporaryName);
+
+		temp->setName(temporaryName);
+		storeTemp(*temp, storedMatrices);
+		if (temporaryName[5] < '9')temporaryName[5]++;
+		else
+		{
+			temporaryName[5] = '1';
+			(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+		}
+
+		delete parameter1;
+		delete parameter2;
+	}
+	//end mathematical operations
+
+
+	for (size_t i = 0; i < storedMatrices.size(); i++)
+	{
+		if (storedMatrices[i].getName() == RHS)
+		{
+			Matrix temp = storedMatrices[i];
+			return temp;
+		}
+	}
+
+	return *temp;
+
+}

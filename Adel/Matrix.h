@@ -4,23 +4,28 @@
 #include <cstdlib>
 #include <string.h>
 #include <math.h>
-#include<stdio.h>
+#include <stdio.h>
+#include <sstream>
+#include <iomanip>
+
 using namespace std;
 
 #define alphabets "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #define numbers "-.0123456789"
+#define PI 3.14159265359
+
 #ifndef MATRIX_H
 #define MATRIX_H
 
-
 class Matrix
 {
-	double** twoDArray;
 	bool notMatrix;
 	unsigned int rows;
 	unsigned int columns;
-	double num;  //some variables will not be matrices .. but they need to be stored
+	double num;
 	string name;
+	double** twoDArray;
+
 public:
 	//Constructors and Destructors:
 	Matrix();
@@ -28,31 +33,33 @@ public:
 	Matrix(unsigned int, unsigned int);
 	Matrix(const Matrix&);
 	Matrix(string, string);
-	Matrix(string name,string matrixString, vector<Matrix> & storedMatrices);
+	Matrix(string name,string matrixString, vector<Matrix> & storedMatrices,vector<string>& systemCommands);
 	~Matrix();
 	void copyMatrix(const Matrix*);
 
 	//Operators:
-	Matrix& operator=(Matrix&);
+	Matrix& operator=(Matrix);
 	Matrix& operator=(double);
-	Matrix& operator+(Matrix&);
-	Matrix& operator-(Matrix&);
-	Matrix& operator+(double);
-	Matrix& operator-(double);
-	Matrix& operator*(Matrix&);
-	Matrix& operator/(Matrix&);
-	Matrix& operator*(double);
-	Matrix& operator/(double);
+	Matrix operator+(Matrix&);
+	Matrix operator-(Matrix&);
+	Matrix operator+(double);
+	Matrix operator-(double);
+	Matrix operator*(Matrix&);
+	Matrix operator/(Matrix&);
+	Matrix operator*(double);
+	Matrix operator/(double);
 	Matrix& operator-();
 
 	//Setters and Getters:
 	void setName(string);
 	void setNum(double);
+	void setSize(unsigned int, unsigned int);
 	string getName();
 	int getRows();
 	int getColumns();
 	double getNum();
 	double getElement(unsigned int, unsigned int);
+
 
 	//Operations:
 	static Matrix* add(Matrix&, Matrix&);   //add made by '+' operator
@@ -66,7 +73,12 @@ public:
 
 	static Matrix* divide(Matrix&, Matrix&);               //  /
 	static Matrix* pseudoDiv(Matrix&, Matrix&);            // ./
+
+	static Matrix* powerMatrix(Matrix &, Matrix&);
+
 	void addMatrixToMatrix(Matrix & x ,int r , int c);
+
+	Matrix* sqrtMatrix();
 	Matrix* negative();
 	Matrix* inverse();
 	Matrix* transpose();
@@ -76,29 +88,31 @@ public:
 	double determinant(bool minor = false, unsigned posRow = 0, unsigned posCol = 0);
 
 	void eye(unsigned int = 0, unsigned int = 0);
-    void ones(unsigned int=0,unsigned int=0);
-    void random(unsigned int=0, unsigned int=0);
+	void ones(unsigned int = 0, unsigned int = 0);
+	void zeros(unsigned int = 0, unsigned int = 0);
+	void random(unsigned int = 0, unsigned int = 0);
 
-    Matrix* sinMatrix();
-    Matrix* cosMatrix();
-    Matrix* tanMatrix();
-    Matrix* asinMatrix();
-    Matrix* acosMatrix();
-    Matrix* atanMatrix();
+	Matrix* sinMatrix();
+	Matrix* cosMatrix();
+	Matrix* tanMatrix();
+	Matrix* asinMatrix();
+	Matrix* acosMatrix();
+	Matrix* atanMatrix();
+
 	Matrix* subMatrix(string);
-
-	Matrix* concatenateHor(Matrix&, Matrix&);
-	Matrix* concatenateVer(Matrix&, Matrix&);
+	//Matrix* concatenate(Matrix&, Matrix&);
 
 	void printMatrix(bool = true, unsigned int = 0, const vector<string>& = vector<string>());
+
 
 	bool is_square();
 	bool is_scalar();
 private:
-	void setSize(unsigned int, unsigned int);
 	void setElement(unsigned int, unsigned int, double);
-
-	friend Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string>& systemCommands);
+	/*void swapCols(unsigned int, unsigned int);
+	void swapRows(unsigned int, unsigned int);
+	double handleZeroPivot();  //return the number of swaps done as well, to change the sign of the determinant
+	static void eliminateFloats(double&);*/
 };
 
 #endif
