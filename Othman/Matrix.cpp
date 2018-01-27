@@ -1625,7 +1625,7 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 				*temp = m;
 				temp->setName(temporaryName);
 			}
-			RHS.erase(pos, negOperand.length());
+			RHS.erase(pos, (negOperand.length()+1));
 			RHS.insert(pos, temporaryName);
 			storeTemp(*temp, storedMatrices);
 			if (temporaryName[5] < '9')temporaryName[5]++;
