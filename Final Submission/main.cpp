@@ -81,6 +81,8 @@ int main(int argv, char* argc[])
 
 				if (openBrackets>closeBrackets) {  //command haven't ended yet
 					temp += fileLine;
+					if (fileLine[fileLine.length() - 1] == ';');
+					else temp += ";";
 					continue;
 				}
 				else {

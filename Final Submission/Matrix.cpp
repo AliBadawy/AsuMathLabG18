@@ -800,7 +800,7 @@ Matrix* Matrix::product(Matrix& A, Matrix& B) {
 		Matrix* temp = new Matrix;
 		temp->setSize(A.rows, B.columns);
 		for (size_t i = 0; i<A.rows; i++)
-			for (size_t j = 0; j<B.rows; j++)
+			for (size_t j = 0; j<B.columns; j++)
 				for (size_t k = 0; k<A.columns; k++)  //or B.rows
 					temp->twoDArray[i][j] += A.twoDArray[i][k] * B.twoDArray[k][j];
 		return temp;
