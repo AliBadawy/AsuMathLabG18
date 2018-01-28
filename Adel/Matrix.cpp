@@ -223,8 +223,9 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 	int tempNumCols = 0;
 	int numb_elements = 0;
 
+	while(matrixString[matrixString.length()-1]==' ')matrixString.erase(matrixString.length()-1,1); //remove spaces from the end of input
 
-	if(matrixString[matrixString.length()-1]==';')matrixString.erase(matrixString.length()-1,1);
+	if(matrixString[matrixString.length()-1]==';')matrixString.erase(matrixString.length()-1,1); //removing semicolon and spaces before it
 	else
 	{
 		while(matrixString[matrixString.length()-1]==' ')
@@ -236,8 +237,21 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 	}
 
 
-
+	//handling brackets errors
 	int counter1 = 0, counter2 = 0;
+
+	for (int i = 0; i<matrixString.length(); i++)
+	{
+		if (matrixString[i] == '(')
+			counter1++;
+		else if (matrixString[i] == ')')
+			counter2++;
+	}
+	if (counter1 != counter2)throw("invalid exepression.(close Brackets)");
+
+
+	counter1 = 0; counter2 = 0;
+
 	for (int i = 0; i<matrixString.length(); i++)
 	{
 		if (matrixString[i] == '[')
@@ -247,29 +261,69 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 	}
 	if (counter1 != counter2)throw("invalid exepression.(close Brackets)");
 
+
+
+
 	matrixString.erase(0, matrixString.find("[") + 1);
 	while (matrixString[0] == ' ')matrixString.erase(0, 1);
 	matrixString.erase(matrixString.rfind("]"), 1);
 	while (matrixString[matrixString.length() - 1] == ' ')matrixString.erase(matrixString.length() - 1, 1);
 
 	//string operationsString = "+*/^'();";
-	string operationsString = "+*/^';";
+
+	string operationsString = "+*/^;";
 	int currentRow = 0, currentCol = 0;
-	for (int i = 0; i<matrixString.length(); i++)
+	
+
+	for(int i=0;i<matrixString.length();i++)
 	{
-		currentRow = 0; currentCol = 0;
-
-
-
-
-		if (matrixString[i] == ' ')
+		if(matrixString[i]=='.')
 		{
-			if (operationsString.find(matrixString[i + 1]) != std::string::npos || operationsString.find(matrixString[i - 1]) != std::string::npos)
+			while(matrixString[i+1]==' ')matrixString.erase(i+1,1);
+			while(matrixString[i-1]==' '){matrixString.erase(i-1,1);i--;}
+		}
+		else if(operationsString.find(matrixString[i])!=std::string::npos)
+		{
+			while(matrixString[i+1]==' ')matrixString.erase(i+1,1);
+			while(matrixString[i-1]==' '){matrixString.erase(i-1,1);i--;}
+			if()
+		}
+		else if(matrixString[i]=='\'')
+		{
+			while(matrixString[i-1]==' '){matrixString.erase(i-1,1);i--;}
+		}
+		else if(matrixString[i]==',')
+		{
+			while(matrixString[i+1]==' ')matrixString.erase(i+1,1);
+			while(matrixString[i-1]==' '){matrixString.erase(i-1,1);i--;}
+			if(matrixString[i+1]==',') throw("invalid exepression (,,)");
+		}
+		else if(matrixString[i]=='-')
+		{
+			if(matrixString[i+1]==' ')
 			{
-				matrixString.erase(i, 1); i--;
+				if(i==0){while(matrixString[i+1]==' ')matrixString.erase(i+1,1);}
+				else
+				{
+					while(matrixString[i+1]==' ')matrixString.erase(i+1,1);
+					while(matrixString[i-1]==' '){matrixString.erase(i-1,1);i--;}
+				}
 			}
 		}
+		else if(matrixString[i]=='(')
+		{
+			while(matrixString[i+1]==' ')matrixString.erase(i+1,1);
+		}
+		else if(matrixString[i]==')')
+		{
+			while(matrixString[i-1]==' '){matrixString.erase(i-1,1);i--;}
+		}
+		else if(matrixString[i]==' ')
+		{
+			while(matrixString[i+1]==' ')matrixString.erase(i+1,1);
+		}
 	}
+
 
 
 
@@ -305,7 +359,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 				if (matrixString[k] == ']')counter3--;
 				k++;
 			}
-
+			
 			Matrix x("noname", temp, storedMatrices, systemCommands);
 			numb_elements += x.rows * x.columns;
 
@@ -424,6 +478,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 
 				//zawdt el print de, lw hya b true bytb3,  false msh bytb3
 				bool print = false;
+				//cout<<"temp = "<<temp<<endl;
 				Matrix x = multiOpHandling(temp, storedMatrices, systemCommands, print);
 				if (x.notMatrix == true)
 				{
@@ -487,7 +542,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 	}
 	//this->printMatrix();
 
-	if ((this->rows * this->columns) != numb_elements)throw("  invalid exepression");
+	if ((this->rows * this->columns) != numb_elements)throw("  invalid exepression(dimensions error)");
 
 }
 
