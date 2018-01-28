@@ -33,20 +33,21 @@ public:
 	Matrix(unsigned int,unsigned int);
 	Matrix(const Matrix&);
 	Matrix(string, string);
+	Matrix(string name,string matrixString, vector<Matrix> & storedMatrices);
 	~Matrix();
 	void copyMatrix(const Matrix*);
 
   //Operators:
-	Matrix& operator=(Matrix);
+	Matrix& operator=(Matrix&);
 	Matrix& operator=(double);
-	Matrix operator+(Matrix&);
-	Matrix operator-(Matrix&);
-	Matrix operator+(double);
-	Matrix operator-(double);
-	Matrix operator*(Matrix&);
-	Matrix operator/(Matrix&);
-	Matrix operator*(double);
-	Matrix operator/(double);
+	Matrix& operator+(Matrix&);
+	Matrix& operator-(Matrix&);
+	Matrix& operator+(double);
+	Matrix& operator-(double);
+	Matrix& operator*(Matrix&);
+	Matrix& operator/(Matrix&);
+	Matrix& operator*(double);
+	Matrix& operator/(double);
 	Matrix& operator-();
 
   //Setters and Getters:
@@ -58,6 +59,7 @@ public:
 	int getColumns();
 	double getNum();
 	double getElement(unsigned int,unsigned int);
+    void addMatrixToMatrix(Matrix & x ,int r , int c);
 
 
   //Operations:
@@ -93,7 +95,6 @@ public:
     Matrix* atanMatrix();
 
     Matrix* subMatrix(string);
-    Matrix* concatenate(Matrix& , Matrix&);
 
     void printMatrix(bool=true,unsigned int=0,const vector<string>& = vector<string>());
 

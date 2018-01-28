@@ -279,7 +279,21 @@ bool print = true;
         else throw ("Close the brackets.");
 
     /* storing */
-        Matrix inputAssignment(arrayOfLHS[0],input);
+		string tempIn = input.substr(input.find("["));
+		for(size_t y=1;y<tempIn.length();y++)
+		{
+			string alphabetsString = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			string operationsString = "+-*/.^'()";
+			if(tempIn[y]=='['|| alphabetsString.find(tempIn[y])!=alphabetsString.npos || operationsString.find(tempIn[y])!=operationsString.npos)
+			{
+
+			}
+
+		}
+
+		Matrix inputAssignment (arrayOfLHS[0], input, storedMatrices);
+
+
         if(arrayOfIndeces[0]==-1){
             storedMatrices.push_back(inputAssignment);
         }
@@ -565,7 +579,7 @@ bool print = true;
                     if(negate2) parameter2 = parameter2->negative();
 
 
-					if     (op=='+') *temp = *parameter1 + *parameter2;
+					if        (op=='+') *temp = *parameter1 + *parameter2;
 					else if(op=='-') *temp = *parameter1 - *parameter2;
 					else if(op=='*') *temp = *parameter1 * *parameter2;
 					else if(op=='/') *temp = *parameter1 / *parameter2;

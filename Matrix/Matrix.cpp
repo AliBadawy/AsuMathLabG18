@@ -91,6 +91,119 @@ Matrix::Matrix(string name,string matrixString)
         }
     inputElements.clear();
 }
+
+/* SHA3WAZA CONSTRUCTOR */
+Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices)
+:notMatrix(false),rows(0),columns(0),num(0),name(""),twoDArray(NULL)
+{
+	if(name.find_first_not_of(alphabets)== 0) throw("Variable name is not valid.");
+	this->name = name;
+	matrixString.erase(0,matrixString.find("[")+1);
+	matrixString.erase(matrixString.rfind("]"),1);
+
+	string operationsString = "+-*/^'()";
+	for(size_t i=0;i<matrixString.length();i++)
+	{
+		if(matrixString[i]==' ')
+		{
+			if(operationsString.find(matrixString[i+1])!=std::string::npos || operationsString.find(matrixString[i+1])!=std::string::npos)
+			{matrixString.erase(i,1);i--;}
+		}
+	}
+
+
+	int currentRow=0,currentCol=0;
+
+
+	string alphabetsString = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+	for(size_t i = 0;i<matrixString.length();i++)
+	{
+		string temp = "";
+		if(matrixString[i]==',' || matrixString[i] == ' ')
+		{
+			currentCol++;
+		}
+		else if(matrixString[i]==';' || matrixString[i] == '\r')
+		{
+			currentRow ++ ;
+			currentCol = 0 ;
+		}
+		else if(matrixString[i] == '[')
+		{
+			temp = matrixString.substr(i,matrixString.find("]",i)-i+1);
+
+			//cout<<"temp = "<<temp<<endl;
+
+			Matrix x("noname",temp);
+			//x.printMatrix();
+			//A.addMatrixToMatrix(Matrix ("noname",temp,storedMatrices),currentRow,currentCol);
+			this->addMatrixToMatrix(x,currentRow,currentCol);
+
+//			cout<<"after"<<endl;
+
+			//int f;
+			//cin>>f;
+
+			//currentCol += Matrix ("noname",temp,storedMatrices).columns-1;
+			currentCol += x.columns-1;
+			i+= temp.length()-1;
+		}
+		else
+		{
+			size_t k = i;
+			while((matrixString[k]!=' ' && matrixString[k] != ',' && matrixString[k] != ';' && matrixString[k] != '\r') )
+			{
+				temp+=matrixString[k];
+				k++;
+				if(k==matrixString.length())break;
+			}
+			//cout<<"temp = "<<temp <<endl;
+			i+= temp.length()-1;
+
+			int multi_op_flag = 0;
+
+			for(size_t j = 0;j<temp.length();j++)
+			{
+				if(operationsString.find(temp[j]) != std::string::npos)
+				{
+					multi_op_flag =1;
+					break;
+				}
+			}
+
+			if(multi_op_flag)
+			{
+				//handle multi op
+			}
+			else
+			{
+				if(alphabetsString.find(temp[0]) != std::string::npos)
+				{
+					for(size_t j =0;j<storedMatrices.size();j++)
+					{
+						if(storedMatrices[j].name == temp)
+						{
+							this->addMatrixToMatrix(storedMatrices[j],currentRow,currentCol);
+							currentCol += storedMatrices[j].columns-1;
+							break;
+						}
+					}
+				}
+				else
+				{
+					Matrix x(stod(temp));
+					this->addMatrixToMatrix(x,currentRow,currentCol);
+				}
+			}
+		}
+	}
+	this->printMatrix();
+	//cout<<"end of constructor"<<endl;
+	int ff;
+	cin>>ff;
+}
+
 /*********************END CONSTRUCTORS*******************/
 
 /*********************DESTRUCTOR***********************/
@@ -129,7 +242,7 @@ void Matrix::copyMatrix(const Matrix* A){
 
 /***********OPERATORS*****************/
 //Assignment Operators:
-Matrix& Matrix::operator=(Matrix A){
+Matrix& Matrix::operator=(Matrix& A){
     this->copyMatrix(&A);
     return *this;
 }
@@ -140,44 +253,44 @@ Matrix& Matrix::operator=(double value){
 }
 
 //Mathematical Operators:
-Matrix Matrix::operator+(Matrix& A){
+Matrix& Matrix::operator+(Matrix& A){
     Matrix* result = add(*this,A);
     return *result;
 }
-Matrix Matrix::operator-(Matrix& A){
+Matrix& Matrix::operator-(Matrix& A){
     Matrix* result = subtract(*this,A);
     return *result;
 }
-Matrix Matrix::operator+(double value){
+Matrix& Matrix::operator+(double value){
     Matrix *temp = new Matrix, *result;
     temp->setNum(value);
     result = add(*this,*temp);
     return *result;
 }
-Matrix Matrix::operator-(double value){
+Matrix& Matrix::operator-(double value){
     Matrix *temp = new Matrix, *result;
     temp->setNum(value);
     result = subtract(*this,*temp);
     return *result;
 }
-Matrix Matrix::operator*(Matrix& A){
+Matrix& Matrix::operator*(Matrix& A){
     Matrix* result = product(*this,A);
     return *result;
 }
 
-Matrix Matrix::operator*(double value){
+Matrix& Matrix::operator*(double value){
     Matrix  *temp = new Matrix, *result;
     temp->setNum(value);
     result=product(*this,*temp);
     return *result;
 }
 
-Matrix Matrix::operator/(Matrix& A){
+Matrix& Matrix::operator/(Matrix& A){
     Matrix* result = divide(*this,A);
     return *result;
 }
 
-Matrix Matrix::operator/(double value){
+Matrix& Matrix::operator/(double value){
     Matrix *temp = new Matrix, *result;
     temp->setNum(value);
     result=divide(*this,*temp);
@@ -257,6 +370,119 @@ bool Matrix::is_scalar(){
 }
 
 /********************OPERATIONS******************************/
+
+void Matrix::addMatrixToMatrix(Matrix &x,int r,int c)
+{
+	//cout<<"rows = "<<this->rows<<"	"<<"col "<<this->columns<<endl;
+	if(x.notMatrix)
+	{
+		x.notMatrix =false;
+		x.columns++;
+		x.rows++;
+		x.twoDArray = new double* [1];
+		x.twoDArray[0]=new double[1];
+		x.twoDArray[0][0] =x.num;
+	}
+
+	if(this->twoDArray == NULL && r==0 && c == 0)
+	{
+		this->rows = x.rows;
+		this->columns = x.columns;
+		this->notMatrix = false;
+		this->twoDArray= new double* [this->rows];
+		for(unsigned int i=0;i<this->rows;i++)
+		{
+			this->twoDArray[i] = new double[this->columns];
+		}
+
+		for(unsigned int i =0;i<this->rows;i++)
+			for(unsigned int j=0;j<this->columns;j++)
+			{
+				this->twoDArray[i][j] = x.twoDArray[i][j];
+			}
+	}
+
+
+	else if(this->rows>= r+x.rows && this->columns >= c+x.columns)
+	{
+		unsigned int a = r,b=c;
+		for(unsigned int i=0;i<x.rows;i++ )
+		{
+			b=c;
+			for(unsigned int j=0;j<x.columns;j++)
+				{
+					this->twoDArray[a][b] = x.twoDArray[i][j];
+					b++;
+				}
+			a++;
+		}
+	}
+
+	else if(this->rows<r+x.rows && this->columns>= c+ x.columns)
+	{
+		Matrix temp (*this);
+
+		for(unsigned int i=0;i<this->rows;i++)
+			delete[] this->twoDArray[i];
+		delete[]this->twoDArray;
+
+		this->rows = r+x.rows;
+
+		this->twoDArray = new double*[this->rows];
+		for(unsigned int i=0;i<this->rows;i++)
+			this->twoDArray[i] = new double[this->columns];
+
+		for(unsigned int i=0;i<temp.rows;i++)
+			for(unsigned int j=0;j<temp.columns;j++)
+			{
+				this->twoDArray[i][j] = temp.twoDArray[i][j];
+			}
+			int a = r,b = c;
+			for(unsigned int i=0;i<x.rows;i++)
+			{
+				b= c;
+				for(unsigned int j=0;j<x.columns;j++)
+				{
+					this->twoDArray[a][b] = x.twoDArray[i][j];
+					b++;
+				}
+				a++;
+			}
+	}
+	else if (this->rows>= r+x.rows && this->columns< c+x.columns)
+	{
+		Matrix temp (*this);
+
+		for(unsigned int i=0;i<this->rows;i++)
+			delete[] this->twoDArray[i];
+		delete[]this->twoDArray;
+
+		this->columns = c+x.columns;
+
+		this->twoDArray = new double*[this->rows];
+		for(unsigned int i=0;i<this->rows;i++)
+			this->twoDArray[i] = new double[this->columns];
+
+		for(unsigned int i=0;i<temp.rows;i++)
+			for(unsigned int j=0;j<temp.columns;j++)
+			{
+				this->twoDArray[i][j] = temp.twoDArray[i][j];
+			}
+			int a= r,b=c;
+			for(unsigned int i=0;i<x.rows;i++)
+			{
+				b=c;
+				for(unsigned int j=0;j<x.columns;j++)
+				{
+					this->twoDArray[a][b] = x.twoDArray[i][j];
+					b++;
+				}
+				a++;
+			}
+			//printMatrix(this);
+	}
+}
+
 
 Matrix* Matrix::add(Matrix& A,Matrix& B){
     Matrix* temp = new Matrix;
