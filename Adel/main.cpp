@@ -150,7 +150,7 @@ int main(int argv, char* argc[])
                 else cout<<"\t";
 
                 string line = "";
-                getline(cin, line,'\n');
+                getline(cin, line, '\n');
 
                 static int openBrackets = 0, closeBrackets = 0;
             /** Detect Multi-line Commands **/
@@ -163,6 +163,8 @@ int main(int argv, char* argc[])
 
                 if (openBrackets>closeBrackets) {  //command haven't ended yet
                     temp += line;
+                    if(line[line.length()-1] == ';');
+                    else temp += ";";
                     newEntry=false;
                     continue;
                 }
