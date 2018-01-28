@@ -352,7 +352,7 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 		|| RHS.find("*") != RHS.npos || RHS.find("/") != RHS.npos || RHS.find("inv") != RHS.npos || RHS.find("'") != RHS.npos || RHS.find("`") != RHS.npos || RHS.find("det") != RHS.npos || RHS.find("(") != RHS.npos || RHS.find(")") != RHS.npos || RHS.find("^") != RHS.npos)
 	{
 		Matrix* temp = new Matrix;
-		*temp = Matrix::multiOpHandling(RHS, storedMatrices, systemCommands,print);
+		*temp = Matrix::multiOpHandling(RHS, storedMatrices, systemCommands, print);
 		storedMatrices.push_back(*temp);
 		for (size_t i = 0; i<num_equals; i++) {
 			temp->setName(arrayOfLHS[i]);
@@ -370,7 +370,7 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 
 	/**********END STRING INITIALIZTING *************/
 
-	
+
 
 	/*********START SUBMATRIX AND INDEXING*****/
 	else if (RHS.find("(") != RHS.npos) {
