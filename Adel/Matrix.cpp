@@ -1,6 +1,5 @@
 #include "Matrix.h"
 
-Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string>& systemCommands);
 /************START CONSTRUCTORS*******************/
 
 //Default Constructor:
@@ -92,251 +91,270 @@ Matrix::Matrix(string name, string matrixString)
 	inputElements.clear();
 }
 
-void Matrix::addMatrixToMatrix(Matrix &x,int r,int c)
+void Matrix::addMatrixToMatrix(Matrix &x, int r, int c)
 {
-	
-	if(x.notMatrix)
+
+	if (x.notMatrix)
 	{
-		x.notMatrix =false;
+		x.notMatrix = false;
 		x.columns++;
 		x.rows++;
-		x.twoDArray = new double* [1];
-		x.twoDArray[0]=new double[1];
-		x.twoDArray[0][0] =x.num;
+		x.twoDArray = new double*[1];
+		x.twoDArray[0] = new double[1];
+		x.twoDArray[0][0] = x.num;
 	}
 	//cout<<"r = "<<r<<" c = "<<c<<endl;
 	//x.printMatrix();
-	if(this->twoDArray == NULL && r==0 && c == 0)
+	if (this->twoDArray == NULL && r == 0 && c == 0)
 	{
 		this->rows = x.rows;
 		this->columns = x.columns;
 		this->notMatrix = false;
-		this->twoDArray= new double* [this->rows];
-		for(int i=0;i<this->rows;i++)
+		this->twoDArray = new double*[this->rows];
+		for (int i = 0; i<this->rows; i++)
 		{
 			this->twoDArray[i] = new double[this->columns];
 		}
 
-		for(int i =0;i<this->rows;i++)
-			for(int j=0;j<this->columns;j++)
+		for (int i = 0; i<this->rows; i++)
+			for (int j = 0; j<this->columns; j++)
 			{
 				this->twoDArray[i][j] = x.twoDArray[i][j];
 			}
 	}
 
 
-	else if(this->rows>= r+x.rows && this->columns >= c+x.columns)
+	else if (this->rows >= r + x.rows && this->columns >= c + x.columns)
 	{
-		int a = r,b=c;
-		for(int i=0;i<x.rows;i++ )
+		int a = r, b = c;
+		for (int i = 0; i<x.rows; i++)
 		{
-			b=c;
-			for(int j=0;j<x.columns;j++)
-				{
-					this->twoDArray[a][b] = x.twoDArray[i][j];
-					b++;
-				}
+			b = c;
+			for (int j = 0; j<x.columns; j++)
+			{
+				this->twoDArray[a][b] = x.twoDArray[i][j];
+				b++;
+			}
 			a++;
 		}
 	}
 
-	else if(this->rows<r+x.rows && this->columns>= c+ x.columns)
+	else if (this->rows<r + x.rows && this->columns >= c + x.columns)
 	{
-		Matrix temp (*this);
+		Matrix temp(*this);
 
-		for(int i=0;i<this->rows;i++)
+		for (int i = 0; i<this->rows; i++)
 			delete[] this->twoDArray[i];
 		delete[]this->twoDArray;
 
-		this->rows = r+x.rows;
-		
+		this->rows = r + x.rows;
+
 		this->twoDArray = new double*[this->rows];
-		for(int i=0;i<this->rows;i++)
+		for (int i = 0; i<this->rows; i++)
 			this->twoDArray[i] = new double[this->columns];
 
-		for(int i=0;i<temp.rows;i++)
-			for(int j=0;j<temp.columns;j++)
+		for (int i = 0; i<temp.rows; i++)
+			for (int j = 0; j<temp.columns; j++)
 			{
-				this->twoDArray[i][j] = temp.twoDArray[i][j]; 
+				this->twoDArray[i][j] = temp.twoDArray[i][j];
 			}
-			int a = r,b = c;
-			for(int i=0;i<x.rows;i++)
-			{ 
-				b= c;
-				for(int j=0;j<x.columns;j++)
-				{
-					this->twoDArray[a][b] = x.twoDArray[i][j];
-					b++;
-				}
-				a++;
+		int a = r, b = c;
+		for (int i = 0; i<x.rows; i++)
+		{
+			b = c;
+			for (int j = 0; j<x.columns; j++)
+			{
+				this->twoDArray[a][b] = x.twoDArray[i][j];
+				b++;
 			}
+			a++;
+		}
 	}
-	else if (this->rows>= r+x.rows && this->columns< c+x.columns)
+	else if (this->rows >= r + x.rows && this->columns< c + x.columns)
 	{
-		Matrix temp (*this);
+		Matrix temp(*this);
 
-		for(int i=0;i<this->rows;i++)
+		for (int i = 0; i<this->rows; i++)
 			delete[] this->twoDArray[i];
 		delete[]this->twoDArray;
 
-		this->columns = c+x.columns;
-		
+		this->columns = c + x.columns;
+
 		this->twoDArray = new double*[this->rows];
-		for(int i=0;i<this->rows;i++)
+		for (int i = 0; i<this->rows; i++)
 			this->twoDArray[i] = new double[this->columns];
 
-		for(int i=0;i<temp.rows;i++)
-			for(int j=0;j<temp.columns;j++)
+		for (int i = 0; i<temp.rows; i++)
+			for (int j = 0; j<temp.columns; j++)
 			{
-				this->twoDArray[i][j] = temp.twoDArray[i][j]; 
+				this->twoDArray[i][j] = temp.twoDArray[i][j];
 			}
-			int a= r,b=c;
-			for(int i=0;i<x.rows;i++)
+		int a = r, b = c;
+		for (int i = 0; i<x.rows; i++)
+		{
+			b = c;
+			for (int j = 0; j<x.columns; j++)
 			{
-				b=c;
-				for(int j=0;j<x.columns;j++)
-				{
-					this->twoDArray[a][b] = x.twoDArray[i][j];
-					b++;
-				}
-				a++;
+				this->twoDArray[a][b] = x.twoDArray[i][j];
+				b++;
 			}
-			
+			a++;
+		}
+
 	}
-	else if(this->rows< r+x.rows && this->columns< c+x.columns ) throw("  invalid exepression.");
+	else if (this->rows< r + x.rows && this->columns< c + x.columns) throw("  invalid exepression.");
 	//this->printMatrix();
 }
 
 
 
 
-Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices,vector<string>& systemCommands)
+Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices, vector<string>& systemCommands)
 {
-	if(name.find_first_not_of(alphabets)== 0) throw("Variable name is not valid.");
+	if (name.find_first_not_of(alphabets) == 0) throw("Variable name is not valid.");
 	this->name = name;
-	this->columns =0;
+	this->columns = 0;
 	this->rows = 0;
-	this->num =0;
+	this->num = 0;
 	this->notMatrix = false;
 	this->twoDArray = NULL;
 
-	int numbOfColsinFirstRow =0;
-	int tempNumCols=0;
-	int numb_elements=0;
+	int numbOfColsinFirstRow = 0;
+	int tempNumCols = 0;
+	int numb_elements = 0;
 
-	int counter1=0,counter2=0;
-	for(int i=0;i<matrixString.length();i++)
+
+	if(matrixString[matrixString.length()-1]==';')matrixString.erase(matrixString.length()-1,1);
+	else
 	{
-		if(matrixString[i]=='[')
+		while(matrixString[matrixString.length()-1]==' ')
+		{
+			matrixString.erase(matrixString.length()-1,1);
+			if(matrixString[matrixString.length()-1]==';')matrixString.erase(matrixString.length()-1,1);
+		}
+
+	}
+
+
+
+	int counter1 = 0, counter2 = 0;
+	for (int i = 0; i<matrixString.length(); i++)
+	{
+		if (matrixString[i] == '[')
 			counter1++;
-		else if(matrixString[i]==']')
+		else if (matrixString[i] == ']')
 			counter2++;
 	}
-	if(counter1!=counter2)throw("invalid exepression.(close Brackets)");
+	if (counter1 != counter2)throw("invalid exepression.(close Brackets)");
 
-	matrixString.erase(0,matrixString.find("[")+1);
-	while(matrixString[0]==' ')matrixString.erase(0,1);
-	matrixString.erase(matrixString.rfind("]"),1);
-	while(matrixString[matrixString.length()-1]==' ')matrixString.erase(matrixString.length()-1,1);
+	matrixString.erase(0, matrixString.find("[") + 1);
+	while (matrixString[0] == ' ')matrixString.erase(0, 1);
+	matrixString.erase(matrixString.rfind("]"), 1);
+	while (matrixString[matrixString.length() - 1] == ' ')matrixString.erase(matrixString.length() - 1, 1);
 
 	//string operationsString = "+*/^'();";
 	string operationsString = "+*/^';";
-	int currentRow=0,currentCol=0;
-	for(int i=0;i<matrixString.length();i++)
+	int currentRow = 0, currentCol = 0;
+	for (int i = 0; i<matrixString.length(); i++)
 	{
-		currentRow=0;currentCol=0;
-		
-		
+		currentRow = 0; currentCol = 0;
 
 
-		if(matrixString[i]==' ')
+
+
+		if (matrixString[i] == ' ')
 		{
-			if(operationsString.find(matrixString[i+1])!=std::string::npos || operationsString.find(matrixString[i-1])!=std::string::npos)
-			{matrixString.erase(i,1);i--;}
+			if (operationsString.find(matrixString[i + 1]) != std::string::npos || operationsString.find(matrixString[i - 1]) != std::string::npos)
+			{
+				matrixString.erase(i, 1); i--;
+			}
 		}
 	}
-	
 
-	
-	
+
+
+
 
 	string alphabetsString = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-	for(int i = 0;i<matrixString.length();i++)
+	for (int i = 0; i<matrixString.length(); i++)
 	{
 		string temp = "";
-		if(matrixString[i]==',' || matrixString[i] == ' ')
+		if (matrixString[i] == ',' || matrixString[i] == ' ')
 		{
-			
-			while(matrixString[i] == ',' ||matrixString[i] == ' ')
+
+			while (matrixString[i] == ',' || matrixString[i] == ' ')
 				i++;
 			i--;
 			currentCol++;
 		}
-		else if(matrixString[i]==';' || matrixString[i] == '\n')
+		else if (matrixString[i] == ';' || matrixString[i] == '\n')
 		{
-			currentRow ++ ;
-			currentCol = 0 ;
+			currentRow++;
+			currentCol = 0;
 		}
-		else if(matrixString[i] == '[')
+		else if (matrixString[i] == '[')
 		{
 
-			temp+=matrixString[i];
-			int counter3=1,k=i+1;
-			while(counter3!=0)
+			temp += matrixString[i];
+			int counter3 = 1, k = i + 1;
+			while (counter3 != 0)
 			{
-				temp+=matrixString[k];
-				if(matrixString[k]=='[')counter3++;
-				if(matrixString[k]==']')counter3--;
+				temp += matrixString[k];
+				if (matrixString[k] == '[')counter3++;
+				if (matrixString[k] == ']')counter3--;
 				k++;
 			}
 
-			Matrix x("noname",temp,storedMatrices,systemCommands);
+			Matrix x("noname", temp, storedMatrices, systemCommands);
 			numb_elements += x.rows * x.columns;
-			
-			
-			this->addMatrixToMatrix(x,currentRow,currentCol);
 
 
-			if(matrixString[i+ temp.length()]==',' || matrixString[i+ temp.length()]==' ')
+			this->addMatrixToMatrix(x, currentRow, currentCol);
+
+
+			if (matrixString[i + temp.length()] == ',' || matrixString[i + temp.length()] == ' ')
 			{
-				currentCol += x.columns-1;
+				currentCol += x.columns - 1;
 			}
-			else if(matrixString[i+ temp.length()]==';' || matrixString[i+ temp.length()]=='\n')
+			else if (matrixString[i + temp.length()] == ';' || matrixString[i + temp.length()] == '\n')
 			{
-				currentRow += x.rows-1;
+				currentRow += x.rows - 1;
 			}
 
-			
-			i+= temp.length()-1;
+
+			i += temp.length() - 1;
 		}
 		else
 		{
 			int k = i;
-			while((matrixString[k]!=' ' && matrixString[k] != ',' && matrixString[k] != ';' && matrixString[k] != '\n') )
+			while ((matrixString[k] != ' ' && matrixString[k] != ',' && matrixString[k] != ';' && matrixString[k] != '\n'))
 			{
-				temp+=matrixString[k];
+				temp += matrixString[k];
 				k++;
-				if(k==matrixString.length())break;
+				if (k == matrixString.length())break;
 			}
-			
-			
+
+
 
 			int multi_op_flag = 0;
 
-			for(int j = 0;j<temp.length();j++)
+			for (int j = 0; j<temp.length(); j++)
 			{
-				if(operationsString.find(temp[j]) != std::string::npos)
+				if (operationsString.find(temp[j]) != std::string::npos)
 				{
-					multi_op_flag =1;
+					multi_op_flag = 1;
 					break;
 				}
 			}
 
-			if(multi_op_flag)
+			if (multi_op_flag)
 			{
-				Matrix x = multiOpHandling(temp,storedMatrices,systemCommands);
-				if(x.notMatrix == true)
+
+				//zawdt el print de, lw hya b true bytb3,  false msh bytb3
+				bool print = false;
+				Matrix x = multiOpHandling(temp, storedMatrices, systemCommands, print);
+				if (x.notMatrix == true)
 				{
 					numb_elements += 1;
 				}
@@ -344,42 +362,42 @@ Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices,
 				{
 					numb_elements += x.rows * x.columns;
 				}
-				this->addMatrixToMatrix(x,currentRow,currentCol);
-				if(matrixString[i+ temp.length()]==',' || matrixString[i+ temp.length()]==' ')
+				this->addMatrixToMatrix(x, currentRow, currentCol);
+				if (matrixString[i + temp.length()] == ',' || matrixString[i + temp.length()] == ' ')
 				{
-					currentCol += x.columns-1;
+					currentCol += x.columns - 1;
 				}
-				else if(matrixString[i+ temp.length()]==';' || matrixString[i+ temp.length()]=='\n')
+				else if (matrixString[i + temp.length()] == ';' || matrixString[i + temp.length()] == '\n')
 				{
-					currentRow +=x.rows-1;
-				}	
+					currentRow += x.rows - 1;
+				}
 			}
 			else
 			{
-				if(alphabetsString.find(temp[0]) != std::string::npos)
+				if (alphabetsString.find(temp[0]) != std::string::npos)
 				{
-					for(int j =0;j<storedMatrices.size();j++)
+					for (int j = 0; j<storedMatrices.size(); j++)
 					{
-						if(storedMatrices[j].name == temp)
+						if (storedMatrices[j].name == temp)
 						{
-							if(storedMatrices[j].notMatrix == true)
+							if (storedMatrices[j].notMatrix == true)
 							{
 								numb_elements += 1;
 							}
-							else 
+							else
 							{
 								numb_elements += storedMatrices[j].rows * storedMatrices[j].columns;
-							}	
-							
-							this->addMatrixToMatrix(storedMatrices[j],currentRow,currentCol);
-							if(matrixString[i+ temp.length()]==',' || matrixString[i+ temp.length()]==' ')
-								{
-									currentCol += storedMatrices[j].columns-1;
-								}
-							else if(matrixString[i+ temp.length()]==';' || matrixString[i+ temp.length()]=='\n')
-								{
-									currentRow +=storedMatrices[j].rows-1;
-								}
+							}
+
+							this->addMatrixToMatrix(storedMatrices[j], currentRow, currentCol);
+							if (matrixString[i + temp.length()] == ',' || matrixString[i + temp.length()] == ' ')
+							{
+								currentCol += storedMatrices[j].columns - 1;
+							}
+							else if (matrixString[i + temp.length()] == ';' || matrixString[i + temp.length()] == '\n')
+							{
+								currentRow += storedMatrices[j].rows - 1;
+							}
 							break;
 						}
 					}
@@ -388,18 +406,18 @@ Matrix::Matrix(string name,string matrixString, vector<Matrix> & storedMatrices,
 				{
 					Matrix x(stod(temp));
 					numb_elements += 1;
-					
-					this->addMatrixToMatrix(x,currentRow,currentCol);
+
+					this->addMatrixToMatrix(x, currentRow, currentCol);
 				}
 			}
-			i+= temp.length()-1;
+			i += temp.length() - 1;
 		}
 		//cout<<"CR = "<<currentRow<<"	"<<"CL= "<<currentCol<<endl;
 	}
 	//this->printMatrix();
-	
-	if((this->rows * this->columns) != numb_elements)throw("  invalid exepression");
-	
+
+	if ((this->rows * this->columns) != numb_elements)throw("  invalid exepression");
+
 }
 
 /*********************END CONSTRUCTORS*******************/
@@ -1134,13 +1152,13 @@ Matrix* Matrix::powerMatrix(Matrix &M, Matrix&P) {
 		temp->setSize(M.rows, M.columns);
 		for (size_t i = 0; i<temp->rows; i++)
 			for (size_t j = 0; j<(temp->columns); j++)
-				temp->twoDArray[i][j] =pow(M.twoDArray[i][j] , P.num);
+				temp->twoDArray[i][j] = pow(M.twoDArray[i][j], P.num);
 		return temp;
 	}
 	else if (M.notMatrix && P.notMatrix) {				//matrix .^ matrix
 		if (M.rows != P.rows || M.columns != P.columns) throw("Dimensions Error.");
 		Matrix* temp = new Matrix;
-		temp->setNum(pow(M.num,P.num));
+		temp->setNum(pow(M.num, P.num));
 		return temp;
 	}
 }
@@ -1368,10 +1386,6 @@ Matrix* Matrix::subMatrix(string boundaries) {
 }
 /***********************END SUBMATRIX************************/
 
-//Matrix* Matrix::concatenate(Matrix& A,Matrix& B){
-//    if(A.rows != A.columns)throw("Cannot concatenate matrices with different heights.");
-//
-//}
 
 std::string Converttostring(float number) {
 	std::ostringstream buff;
@@ -1487,6 +1501,8 @@ struct operators
 	string op;
 };
 
+
+
 /*function 3shan mafesh temp wa7ed ytkrar marten*/
 void storeTemp(Matrix & M, vector<Matrix>& storedMatrices)
 {
@@ -1502,13 +1518,32 @@ void storeTemp(Matrix & M, vector<Matrix>& storedMatrices)
 	else storedMatrices[index] = M;
 }
 
+//temporary name increment function
+string incrementTempName(string temporaryName)
+{
+	if (temporaryName[6] < '9')temporaryName[6]++;
+	else
+	{
+		temporaryName[6] = '1';
+		if (temporaryName[5] < '9')
+			temporaryName[5]++;
+		else
+		{
+			temporaryName[5] = '1';
+			(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
+		}
+	}
+	return temporaryName;
+}
+
 
 
 
 /*MultiOperations Handeling Function*/
 
-Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string>& systemCommands)
+Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string>& systemCommands, bool &print)
 {
+
 
 	//getting the operators in the i/p
 	vector <operators> ops(0);
@@ -1517,7 +1552,12 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 	operators currentOp;
 	Matrix* temp = new Matrix;
 
-	static string temporaryName = "temp11"; //m3mlthash 00 3shan el 0 e3tbrha ely hya bta3t el termination de wtala3 error
+	static string temporaryName = "temp111"; //m3mlthash 00 3shan el 0 e3tbrha ely hya bta3t el termination de wtala3 error
+	if (RHS[RHS.length() - 1] == ';')
+	{
+		print = false;
+		RHS.erase((RHS.length() - 1), 1);
+	}
 
 	if (RHS.find("+") == RHS.npos && RHS.find("-") == RHS.npos && RHS.find("*") == RHS.npos && RHS.find("/") == RHS.npos && RHS.find("inv") == RHS.npos && RHS.find("'") == RHS.npos && RHS.find("`") == RHS.npos && RHS.find("det") == RHS.npos && RHS.find('(') == RHS.npos && RHS.find(')') == RHS.npos && RHS.find('[') == RHS.npos && RHS.find(']') == RHS.npos && RHS.find('^') == RHS.npos)
 	{
@@ -1529,12 +1569,7 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 			Matrix temp = value;
 			temp.setName(temporaryName);
 			storeTemp(temp, storedMatrices);
-			if (temporaryName[5] < '9')temporaryName[5]++;
-			else
-			{
-				temporaryName[5] = '1';
-				(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-			}
+			temporaryName = incrementTempName(temporaryName);
 			return temp;
 		}
 		for (size_t i = 0; i < storedMatrices.size(); i++)
@@ -1575,6 +1610,100 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 	if (openedBracketsNo > closedBracketsNo)throw("Error opened bracket without closure");
 	if (openedBracketsNo < closedBracketsNo)throw("Error closed bracket without opening");
 
+
+	//special functions
+	while (RHS.find("eye(") != RHS.npos)
+	{
+		int startPosition = RHS.find("eye(");
+		int endPosition = RHS.substr(startPosition).find(')') + startPosition;
+		if (endPosition == RHS.npos)throw("Error opened bracket without closure");
+		string insideBrackets = RHS.substr(startPosition + 4, endPosition - (startPosition+4));
+		if (insideBrackets.find_first_not_of("0123456789,") != insideBrackets.npos)throw("invalid special function format (eye)");
+		string firstP, secondP;
+		int rowsP, columnsP;
+		firstP = insideBrackets.substr(0,insideBrackets.find(','));
+		secondP = insideBrackets.substr((insideBrackets.find(',')+1));
+		rowsP = strtod(firstP.c_str(), NULL);
+		columnsP = strtod(secondP.c_str(), NULL);
+		Matrix result;
+		result.eye(rowsP, columnsP);
+		result.setName(temporaryName);
+		storeTemp(result, storedMatrices);
+		RHS.erase(startPosition, endPosition - startPosition);
+		openedBracketsNo--; closedBracketsNo--;
+		RHS.insert(startPosition, temporaryName);
+		temporaryName = incrementTempName(temporaryName);
+	}
+	while (RHS.find("zeros(") != RHS.npos)
+	{
+		int startPosition = RHS.find("zeros(");
+		int endPosition = RHS.substr(startPosition).find(')') + startPosition;
+		if (endPosition == RHS.npos)throw("Error opened bracket without closure");
+		string insideBrackets = RHS.substr(startPosition + 6, endPosition - (startPosition + 6));
+		if (insideBrackets.find_first_not_of("0123456789,") != insideBrackets.npos)throw("invalid special function format (zeros)");
+		string firstP, secondP;
+		int rowsP, columnsP;
+		firstP = insideBrackets.substr(0, insideBrackets.find(','));
+		secondP = insideBrackets.substr((insideBrackets.find(',') + 1));
+		rowsP = strtod(firstP.c_str(), NULL);
+		columnsP = strtod(secondP.c_str(), NULL);
+		Matrix result;
+		result.zeros(rowsP, columnsP);
+		result.setName(temporaryName);
+		storeTemp(result, storedMatrices);
+		RHS.erase(startPosition, endPosition - startPosition);
+		openedBracketsNo--; closedBracketsNo--;
+		RHS.insert(startPosition, temporaryName);
+		temporaryName = incrementTempName(temporaryName);
+	}
+	while (RHS.find("ones(") != RHS.npos)
+	{
+		int startPosition = RHS.find("ones(");
+		int endPosition = RHS.substr(startPosition).find(')') + startPosition;
+		if (endPosition == RHS.npos)throw("Error opened bracket without closure");
+		string insideBrackets = RHS.substr(startPosition + 5, endPosition - (startPosition + 5));
+		if (insideBrackets.find_first_not_of("0123456789,") != insideBrackets.npos)throw("invalid special function format (ones)");
+		string firstP, secondP;
+		int rowsP, columnsP;
+		firstP = insideBrackets.substr(0, insideBrackets.find(','));
+		secondP = insideBrackets.substr((insideBrackets.find(',') + 1));
+		rowsP = strtod(firstP.c_str(), NULL);
+		columnsP = strtod(secondP.c_str(), NULL);
+		Matrix result;
+		result.ones(rowsP, columnsP);
+		result.setName(temporaryName);
+		storeTemp(result, storedMatrices);
+		RHS.erase(startPosition, endPosition - startPosition);
+		openedBracketsNo--; closedBracketsNo--;
+		RHS.insert(startPosition, temporaryName);
+		temporaryName = incrementTempName(temporaryName);
+	}
+	while (RHS.find("rand(") != RHS.npos)
+	{
+		int startPosition = RHS.find("rand(");
+		int endPosition = RHS.substr(startPosition).find(')') + startPosition;
+		if (endPosition == RHS.npos)throw("Error opened bracket without closure");
+		string insideBrackets = RHS.substr(startPosition + 5, endPosition - (startPosition + 5));
+		if (insideBrackets.find_first_not_of("0123456789,") != insideBrackets.npos)throw("invalid special function format (rand)");
+		string firstP, secondP;
+		int rowsP, columnsP;
+		firstP = insideBrackets.substr(0, insideBrackets.find(','));
+		secondP = insideBrackets.substr((insideBrackets.find(',') + 1));
+		rowsP = strtod(firstP.c_str(), NULL);
+		columnsP = strtod(secondP.c_str(), NULL);
+		Matrix result;
+		result.random(rowsP, columnsP);
+		result.setName(temporaryName);
+		storeTemp(result, storedMatrices);
+		RHS.erase(startPosition, endPosition - startPosition);
+		openedBracketsNo--; closedBracketsNo--;
+		RHS.insert(startPosition, temporaryName);
+		temporaryName = incrementTempName(temporaryName);
+	}
+	//end special functions
+
+
+
 	//Brackets (including the det, inv and trig functions brackets)
 	while (openedBracketsNo > 0)
 	{
@@ -1585,15 +1714,10 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 
 		string insideBrackets = RHS.substr(openBIndex + 1, closeBIndex - (openBIndex + 1));
 		Matrix temporary;
-		temporary = multiOpHandling(insideBrackets, storedMatrices, systemCommands);
+		temporary = multiOpHandling(insideBrackets, storedMatrices, systemCommands, print);
 		RHS.erase(openBIndex + 1, closeBIndex - (openBIndex + 1));
 		RHS.insert(openBIndex + 1, temporary.getName());
-		if (temporaryName[5] < '9')temporaryName[5]++;
-		else
-		{
-			temporaryName[5] = '1';
-			(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-		}
+		temporaryName = incrementTempName(temporaryName);
 		closeBIndex = RHS.substr(openBIndex).find(')') + openBIndex;
 
 
@@ -1643,12 +1767,7 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 				RHS.erase(openBIndex - 4, closeBIndex - (openBIndex - 5));
 				openedBracketsNo--; closedBracketsNo--;
 				RHS.insert(openBIndex - 4, temporaryName);
-				if (temporaryName[5] < '9')temporaryName[5]++;
-				else
-				{
-					temporaryName[5] = '1';
-					(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-				}
+				temporaryName = incrementTempName(temporaryName);
 			}
 
 			/*Square Root*/
@@ -1683,12 +1802,7 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 				RHS.erase(openBIndex - 4, closeBIndex - (openBIndex - 5));
 				openedBracketsNo--; closedBracketsNo--;
 				RHS.insert(openBIndex - 4, temporaryName);
-				if (temporaryName[5] < '9')temporaryName[5]++;
-				else
-				{
-					temporaryName[5] = '1';
-					(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-				}
+				temporaryName = incrementTempName(temporaryName);
 			}
 		}
 
@@ -1717,12 +1831,7 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 				RHS.erase(openBIndex - 3, closeBIndex - (openBIndex - 4));
 				openedBracketsNo--; closedBracketsNo--;
 				RHS.insert(openBIndex - 3, temporaryName);
-				if (temporaryName[5] < '9')temporaryName[5]++;
-				else
-				{
-					temporaryName[5] = '1';
-					(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-				}
+				temporaryName = incrementTempName(temporaryName);
 			}
 
 			//end inverse
@@ -1754,12 +1863,7 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 					RHS.erase(openBIndex - 3, closeBIndex - (openBIndex - 4));
 					openedBracketsNo--; closedBracketsNo--;
 					RHS.insert(openBIndex - 3, temporaryName);
-					if (temporaryName[5] < '9')temporaryName[5]++;
-					else
-					{
-						temporaryName[5] = '1';
-						(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-					}
+					temporaryName = incrementTempName(temporaryName);
 				}
 			}
 			//end determinant
@@ -1807,12 +1911,7 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 					RHS.erase(openBIndex - 3, closeBIndex - (openBIndex - 4));
 					openedBracketsNo--; closedBracketsNo--;
 					RHS.insert(openBIndex - 3, temporaryName);
-					if (temporaryName[5] < '9')temporaryName[5]++;
-					else
-					{
-						temporaryName[5] = '1';
-						(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-					}
+					temporaryName = incrementTempName(temporaryName);
 				}
 			}
 			//ENDTRIG
@@ -1877,12 +1976,7 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 
 				RHS.erase(transposeOperandstart, (pos + 1) - transposeOperandstart);
 				RHS.insert(transposeOperandstart, temporaryName);
-				if (temporaryName[5] < '9')temporaryName[5]++;
-				else
-				{
-					temporaryName[5] = '1';
-					(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-				}
+				temporaryName = incrementTempName(temporaryName);
 
 			}
 		}
@@ -1936,15 +2030,10 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 				*temp = m;
 				temp->setName(temporaryName);
 			}
-			RHS.erase(pos, (negOperand.length()+1));
+			RHS.erase(pos, (negOperand.length() + 1));
 			RHS.insert(pos, temporaryName);
 			storeTemp(*temp, storedMatrices);
-			if (temporaryName[5] < '9')temporaryName[5]++;
-			else
-			{
-				temporaryName[5] = '1';
-				(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-			}
+			temporaryName = incrementTempName(temporaryName);
 		}
 	}
 
@@ -2048,12 +2137,7 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 
 		temp->setName(temporaryName);
 		storeTemp(*temp, storedMatrices);
-		if (temporaryName[5] < '9')temporaryName[5]++;
-		else
-		{
-			temporaryName[5] = '1';
-			(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-		}
+		temporaryName = incrementTempName(temporaryName);
 
 		delete parameter1;
 		delete parameter2;
@@ -2071,7 +2155,9 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 		string op;
 		int opIndex;
 		vector<string> operands(2);
-		vector<int> operandIndeces(2);
+		vector<int> operandIndeces;//****************************************************************************error resolved by adel*****
+		operandIndeces.push_back(-1);
+		operandIndeces.push_back(-1);
 		bool timesDivideDetect = false;
 		for (size_t i = 1; i < RHS.length(); i++)
 		{
@@ -2207,12 +2293,7 @@ Matrix multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vector<string
 
 		temp->setName(temporaryName);
 		storeTemp(*temp, storedMatrices);
-		if (temporaryName[5] < '9')temporaryName[5]++;
-		else
-		{
-			temporaryName[5] = '1';
-			(temporaryName[4] < '9') ? temporaryName[4]++ : temporaryName[4] = '1';
-		}
+		temporaryName = incrementTempName(temporaryName);
 
 		delete parameter1;
 		delete parameter2;

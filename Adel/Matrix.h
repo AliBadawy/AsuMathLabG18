@@ -33,7 +33,7 @@ public:
 	Matrix(unsigned int, unsigned int);
 	Matrix(const Matrix&);
 	Matrix(string, string);
-	Matrix(string name,string matrixString, vector<Matrix> & storedMatrices,vector<string>& systemCommands);
+	Matrix(string name, string matrixString, vector<Matrix> & storedMatrices, vector<string>& systemCommands);
 	~Matrix();
 	void copyMatrix(const Matrix*);
 
@@ -76,7 +76,7 @@ public:
 
 	static Matrix* powerMatrix(Matrix &, Matrix&);
 
-	void addMatrixToMatrix(Matrix & x ,int r , int c);
+	void addMatrixToMatrix(Matrix & x, int r, int c);
 
 	Matrix* sqrtMatrix();
 	Matrix* negative();
@@ -103,6 +103,7 @@ public:
 	//Matrix* concatenate(Matrix&, Matrix&);
 
 	void printMatrix(bool = true, unsigned int = 0, const vector<string>& = vector<string>());
+	static Matrix multiOpHandling(string , vector<Matrix>& , vector<string>& , bool &);
 
 
 	bool is_square();

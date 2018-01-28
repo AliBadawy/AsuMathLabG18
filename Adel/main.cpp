@@ -24,7 +24,6 @@
 using namespace std;
 
 void inputHandling(string, vector<Matrix>&, vector<string>&);
-Matrix multiOpHandling(string, vector<Matrix>&, vector<string>&);
 
 
 struct operators
@@ -142,10 +141,40 @@ int main(int argv, char* argc[])
 
 	/*** CONSOLE MODE ***/
 	else {
+		bool newEntry = true;
 		while (true) {
+			static string temp = "";
 			try {
-				cout << ">> ";
-				getline(cin, commandLine,'\n');
+				if (newEntry)cout << ">> ";
+				else cout << "\t";
+
+				string line = "";
+				getline(cin, line, '\n');
+
+				static int openBrackets = 0, closeBrackets = 0;
+				/** Detect Multi-line Commands **/
+				for (size_t i = 0; i<line.length(); i++) {
+					if (line[i] == '[')openBrackets++;
+					else if (line[i] == ']')closeBrackets++;
+				}
+				while (line.find("\r") != line.npos)line.erase(line.find("\r"), 1);
+				while (line.find("\n") != line.npos)line.erase(line.find("\n"), 1);
+
+				if (openBrackets>closeBrackets) {  //command haven't ended yet
+					temp += line;
+					if (line[line.length() - 1] == ';');
+					else temp += ";";
+					newEntry = false;
+					continue;
+				}
+				else {
+					openBrackets = 0, closeBrackets = 0;
+					commandLine = temp + line;
+					temp = "";
+					newEntry = true;
+				}
+				/** END DETECTING **/
+
 				/** extracting default matlab commands **/
 				if (commandLine == "quit" || commandLine == "QUIT" || commandLine == "Quit") {
 					if (storedMatrices.size() == 0);
@@ -192,6 +221,8 @@ int main(int argv, char* argc[])
 			}
 			catch (const char* err) {
 				cerr << err << "\n\n";
+				newEntry = true;
+				temp = "";
 			}
 		}
 	}
@@ -235,6 +266,7 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 				break;
 			}
 		}
+
 		for (size_t i = 0; i<num_equals; i++)
 			while (arrayOfLHS[i].find(" ") != arrayOfLHS[i].npos) arrayOfLHS[i].erase(arrayOfLHS[i].find(" "), 1);
 
@@ -269,12 +301,12 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 	/********** START OPERATION  ***********/
 
 	/*****************END OPERATIONS********************************/
-	
-	for(int ii =0;ii<input.length();ii++)
+
+	for (int ii = 0; ii<input.length(); ii++)
 	{
-		if(input[ii]=='=')
+		if (input[ii] == '=')
 		{
-			while(input[ii+1]==' ')input.erase(ii+1,1);
+			while (input[ii + 1] == ' ')input.erase(ii + 1, 1);
 		}
 	}
 
@@ -282,18 +314,18 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 
 	/*************START STRING INITIALIZING ******************/
 
-	if (input.find("[") != input.npos && input.find("[")==input.find("=")+1) {
+	if (input.find("[") != input.npos && input.find("[") == input.find("=") + 1) {
 		if (input.find("]") != input.npos) {
 			if (input.rfind("]") != input.length() - 1) {
 				string afterMatrix = input.substr(input.rfind("]") + 1);
 				if (afterMatrix.find_first_not_of(" ;") == afterMatrix.npos)print = false;
-				input.erase(input.find("]") + 1, afterMatrix.length());
+				input.erase(input.rfind("]") + 1, afterMatrix.length());
 			}
 		}
 		else throw ("Close the brackets.");
 
 		/* storing */
-		Matrix inputAssignment (arrayOfLHS[0], input,storedMatrices,systemCommands);
+		Matrix inputAssignment(arrayOfLHS[0], input, storedMatrices, systemCommands);
 		if (arrayOfIndeces[0] == -1) {
 			storedMatrices.push_back(inputAssignment);
 		}
@@ -318,80 +350,16 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 
 	else if (RHS.find("+") != RHS.npos || RHS.find("-") != RHS.npos && (RHS.find("-")>0 || (RHS.find("-") == 0 && RHS.find_first_not_of(numbers) != RHS.npos) || (RHS.find("-") == 0 && RHS.find_first_of(alphabets) == RHS.npos && RHS.find_last_of("+-/") != RHS.npos && RHS.find_last_of("+-/")>1))
 		|| RHS.find("*") != RHS.npos || RHS.find("/") != RHS.npos || RHS.find("inv") != RHS.npos || RHS.find("'") != RHS.npos || RHS.find("`") != RHS.npos || RHS.find("det") != RHS.npos || RHS.find("(") != RHS.npos || RHS.find(")") != RHS.npos || RHS.find("^") != RHS.npos)
-	{      
+	{
 		Matrix* temp = new Matrix;
-		*temp=multiOpHandling(RHS, storedMatrices, systemCommands);
+		*temp = Matrix::multiOpHandling(RHS, storedMatrices, systemCommands,print);
 		storedMatrices.push_back(*temp);
 		for (size_t i = 0; i<num_equals; i++) {
-					temp->setName(arrayOfLHS[i]);
-					if (arrayOfIndeces[i] == -1)
-						storedMatrices.push_back(*temp);
-					else {
-						storedMatrices[arrayOfIndeces[i]] = *temp;
-					}
-				}
-				if (print) temp->printMatrix(true, num_equals, arrayOfLHS);
-				delete temp;
-				delete arrayOfIndeces;
-				arrayOfLHS.clear();
-	}
-
-	/**********END STRING INITIALIZTING *************/
-
-
-
-	/*********SPECIAL FUNCTIONS**************/  //ones, zeros, eye, ... etc
-	else if (RHS.find("eye") != RHS.npos || RHS.find("zeros") != RHS.npos || RHS.find("ones") != RHS.npos || RHS.find("rand") != RHS.npos) {
-		Matrix* temp = new Matrix;
-		if (RHS.find(";") != RHS.npos) {
-			RHS.erase(RHS.begin() + RHS.find(";"), RHS.end());
-			print = false;
-		}
-
-		//1. EYE:
-		if (RHS.find("eye") != RHS.npos) {
-			if (RHS.find("(") != RHS.npos) {
-				RHS.erase(RHS.begin(), RHS.begin() + RHS.find("(") + 1);
-				if (RHS.find(")") != RHS.npos) RHS.erase(RHS.begin() + RHS.find(")"));
-				else throw("Close the parentheses after entering the dimensions.");
-				//a. non-square eye
-				char *e1, *e2;
-				if (RHS.find(",") != RHS.npos) {
-					int rows = 0, cols = 0;
-					string rowString = RHS.substr(0, RHS.find(","));
-					string colString = RHS.substr(RHS.find(",") + 1);
-					rows = strtod(rowString.c_str(), &e1);
-					cols = strtod(colString.c_str(), &e2);
-					if (*e1 != 0 || *e2 != 0) throw("Invalid identity matrix dimensions.");
-					temp->eye(rows, cols);
-				}
-				//b. start square eye
-				else {
-					int dim = 0;
-					dim = strtod(RHS.c_str(), &e1);
-					if (*e1 != 0) throw("Invalid identity matrix dimensions.");
-					temp->eye(dim, dim);
-				}
-			}
-			//c. no dimensions
-			else *temp = 1.0;
-		}
-
-		//2.ZEROS:
-
-
-		//3.ONES:
-
-
-
-		//Storing:
-		for (size_t j = 0; j<num_equals; j++) {
-			temp->setName(arrayOfLHS[j]);
-			if (arrayOfIndeces[j] == -1) {
+			temp->setName(arrayOfLHS[i]);
+			if (arrayOfIndeces[i] == -1)
 				storedMatrices.push_back(*temp);
-			}
 			else {
-				storedMatrices[arrayOfIndeces[j]] = *temp;
+				storedMatrices[arrayOfIndeces[i]] = *temp;
 			}
 		}
 		if (print) temp->printMatrix(true, num_equals, arrayOfLHS);
@@ -399,8 +367,10 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 		delete arrayOfIndeces;
 		arrayOfLHS.clear();
 	}
-	/**********END SPECIAL FUNCTION************/
 
+	/**********END STRING INITIALIZTING *************/
+
+	
 
 	/*********START SUBMATRIX AND INDEXING*****/
 	else if (RHS.find("(") != RHS.npos) {
