@@ -1679,11 +1679,16 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 	Matrix* temp = new Matrix;
 
 	static string temporaryName = "temp111"; //m3mlthash 00 3shan el 0 e3tbrha ely hya bta3t el termination de wtala3 error
+
 	if (RHS[RHS.length() - 1] == ';')
 	{
 		print = false;
-		RHS.erase((RHS.length() - 1), 1);
+		while (RHS[RHS.length() - 1] == ';')
+			RHS.erase((RHS.length() - 1), 1);
 	}
+
+	if (RHS[RHS.length() - 1] == '.' || RHS[RHS.length() - 1] == '^' || RHS[RHS.length() - 1] == '*' || RHS[RHS.length() - 1] == '/' || RHS[RHS.length() - 1] == '-' || RHS[RHS.length() - 1] == '+')
+		throw("invalid expression (mathematical operation)");
 
 	if (RHS.find("+") == RHS.npos && RHS.find("-") == RHS.npos && RHS.find("*") == RHS.npos && RHS.find("/") == RHS.npos && RHS.find("inv") == RHS.npos && RHS.find("'") == RHS.npos && RHS.find("`") == RHS.npos && RHS.find("det") == RHS.npos && RHS.find('(') == RHS.npos && RHS.find(')') == RHS.npos && RHS.find('[') == RHS.npos && RHS.find(']') == RHS.npos && RHS.find('^') == RHS.npos)
 	{
@@ -1743,12 +1748,12 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 		int startPosition = RHS.find("eye(");
 		int endPosition = RHS.substr(startPosition).find(')') + startPosition;
 		if (endPosition == RHS.npos)throw("Error opened bracket without closure");
-		string insideBrackets = RHS.substr(startPosition + 4, endPosition - (startPosition+4));
+		string insideBrackets = RHS.substr(startPosition + 4, endPosition - (startPosition + 4));
 		if (insideBrackets.find_first_not_of("0123456789,") != insideBrackets.npos)throw("invalid special function format (eye)");
 		string firstP, secondP;
 		int rowsP, columnsP;
-		firstP = insideBrackets.substr(0,insideBrackets.find(','));
-		secondP = insideBrackets.substr((insideBrackets.find(',')+1));
+		firstP = insideBrackets.substr(0, insideBrackets.find(','));
+		secondP = insideBrackets.substr((insideBrackets.find(',') + 1));
 		rowsP = strtod(firstP.c_str(), NULL);
 		columnsP = strtod(secondP.c_str(), NULL);
 		Matrix result;
@@ -2192,6 +2197,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 				{
 					if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == ']' || RHS[j] == '[')
 						break;
+					if (RHS[j] == '.' && (RHS[j + 1] == '+' || RHS[j + 1] == '-' || RHS[j + 1] == '/' || RHS[j + 1] == '*' || RHS[j + 1] == '^'))
+						break;
 					char c = RHS[j];
 					operands[1].push_back(c);
 				}
@@ -2212,6 +2219,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 				for (size_t j = i + 1; j < RHS.length(); j++)
 				{
 					if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == '^' || RHS[j] == ']' || RHS[j] == '[')
+						break;
+					if (RHS[j] == '.' && (RHS[j + 1] == '+' || RHS[j + 1] == '-' || RHS[j + 1] == '/' || RHS[j + 1] == '*' || RHS[j + 1] == '^'))
 						break;
 					char c = RHS[j];
 					operands[1].push_back(c);
@@ -2281,7 +2290,7 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 		string op;
 		int opIndex;
 		vector<string> operands(2);
-		vector<int> operandIndeces   ;//****************************************************************************error resolved by adel*****
+		vector<int> operandIndeces;//****************************************************************************error resolved by adel*****
 		operandIndeces.push_back(-1);
 		operandIndeces.push_back(-1);
 		bool timesDivideDetect = false;
@@ -2299,6 +2308,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 				for (size_t j = i + 2; j < RHS.length(); j++)
 				{
 					if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == '^' || RHS[j] == ']' || RHS[j] == '[')
+						break;
+					if (RHS[j] == '.' && (RHS[j + 1] == '+' || RHS[j + 1] == '-' || RHS[j + 1] == '/' || RHS[j + 1] == '*' || RHS[j + 1] == '^'))
 						break;
 					char c = RHS[j];
 					operands[1].push_back(c);
@@ -2320,6 +2331,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 				for (size_t j = i + 1; j < RHS.length(); j++)
 				{
 					if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == '^' || RHS[j] == ']' || RHS[j] == '[')
+						break;
+					if (RHS[j] == '.' && (RHS[j + 1] == '+' || RHS[j + 1] == '-' || RHS[j + 1] == '/' || RHS[j + 1] == '*' || RHS[j + 1] == '^'))
 						break;
 					char c = RHS[j];
 					operands[1].push_back(c);
@@ -2349,6 +2362,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 					{
 						if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == '^' || RHS[j] == ']' || RHS[j] == '[')
 							break;
+						if (RHS[j] == '.' && (RHS[j + 1] == '+' || RHS[j + 1] == '-' || RHS[j + 1] == '/' || RHS[j + 1] == '*' || RHS[j + 1] == '^'))
+							break;
 						char c = RHS[j];
 						operands[1].push_back(c);
 					}
@@ -2369,6 +2384,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 					{
 						if (RHS[j] == '+' || RHS[j] == '-' || RHS[j] == '*' || RHS[j] == '/' || RHS[j] == ')' || RHS[j] == '(' || RHS[j] == 39 /* ely hya ' */ || RHS[j] == '`' || RHS[j] == '^' || RHS[j] == ']' || RHS[j] == '[')
 							break;
+						if (RHS[j] == '.' && (RHS[j + 1] == '+' || RHS[j + 1] == '-' || RHS[j + 1] == '/' || RHS[j + 1] == '*' || RHS[j + 1] == '^'))
+							break;
 						char c = RHS[j];
 						operands[1].push_back(c);
 					}
@@ -2386,8 +2403,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 				operandIndeces[1] = i;
 		}
 
-		if ((operandIndeces[0] == -1 && operands[0].find_first_not_of(alphabets) == operands[0].npos)
-			|| (operandIndeces[1] == -1 && operands[1].find_first_not_of(alphabets) == operands[1].npos)) throw("operand not defined.");
+		if ((operandIndeces[0] == -1 && operands[0].find_first_not_of(numbers) != operands[0].npos)
+			|| (operandIndeces[1] == -1 && operands[1].find_first_not_of(numbers) != operands[1].npos)) throw("operand not defined.");
 
 		if (operands[0].find_first_not_of(numbers) == operands[0].npos && operands[0].find("temp") == operands[0].npos) {  //if the user used a scalar nonsaved value, ex:(a = 1 ./ b)
 			char *e;
@@ -2402,12 +2419,13 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 			if (*e != 0) throw("invalid number.");
 			else *parameter2 = value;
 		}
-		
+
 		else {//cout<<"operandIndeces[1] = "<<operandIndeces[1]<<endl;
-		
-		
-		*parameter2 = storedMatrices[operandIndeces[1]];}
-		
+
+
+			*parameter2 = storedMatrices[operandIndeces[1]];
+		}
+
 
 		if (op == "+") *temp = *parameter1 + *parameter2;
 		else if (op == "-") *temp = *parameter1 - *parameter2;
