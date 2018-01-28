@@ -142,40 +142,10 @@ int main(int argv, char* argc[])
 
 	/*** CONSOLE MODE ***/
 	else {
-        bool newEntry = true;
 		while (true) {
-			static string temp = "";
 			try {
-                if(newEntry)cout << ">> ";
-                else cout<<"\t";
-
-                string line = "";
-                getline(cin, line, '\n');
-
-                static int openBrackets = 0, closeBrackets = 0;
-            /** Detect Multi-line Commands **/
-                for (size_t i = 0; i<line.length(); i++) {
-                    if (line[i] == '[')openBrackets++;
-                    else if (line[i] == ']')closeBrackets++;
-                }
-                while (line.find("\r") != line.npos)line.erase(line.find("\r"), 1);
-                while (line.find("\n") != line.npos)line.erase(line.find("\n"), 1);
-
-                if (openBrackets>closeBrackets) {  //command haven't ended yet
-                    temp += line;
-                    if(line[line.length()-1] == ';');
-                    else temp += ";";
-                    newEntry=false;
-                    continue;
-                }
-                else {
-                    openBrackets = 0, closeBrackets = 0;
-                    commandLine = temp + line;
-                    temp = "";
-                    newEntry = true;
-                }
-				/** END DETECTING **/
-
+				cout << ">> ";
+				getline(cin, commandLine,'\n');
 				/** extracting default matlab commands **/
 				if (commandLine == "quit" || commandLine == "QUIT" || commandLine == "Quit") {
 					if (storedMatrices.size() == 0);
@@ -222,8 +192,6 @@ int main(int argv, char* argc[])
 			}
 			catch (const char* err) {
 				cerr << err << "\n\n";
-                newEntry = true;
-                temp = "";
 			}
 		}
 	}
@@ -267,7 +235,6 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 				break;
 			}
 		}
-
 		for (size_t i = 0; i<num_equals; i++)
 			while (arrayOfLHS[i].find(" ") != arrayOfLHS[i].npos) arrayOfLHS[i].erase(arrayOfLHS[i].find(" "), 1);
 
@@ -302,7 +269,7 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 	/********** START OPERATION  ***********/
 
 	/*****************END OPERATIONS********************************/
-
+	
 	for(int ii =0;ii<input.length();ii++)
 	{
 		if(input[ii]=='=')
@@ -351,7 +318,7 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 
 	else if (RHS.find("+") != RHS.npos || RHS.find("-") != RHS.npos && (RHS.find("-")>0 || (RHS.find("-") == 0 && RHS.find_first_not_of(numbers) != RHS.npos) || (RHS.find("-") == 0 && RHS.find_first_of(alphabets) == RHS.npos && RHS.find_last_of("+-/") != RHS.npos && RHS.find_last_of("+-/")>1))
 		|| RHS.find("*") != RHS.npos || RHS.find("/") != RHS.npos || RHS.find("inv") != RHS.npos || RHS.find("'") != RHS.npos || RHS.find("`") != RHS.npos || RHS.find("det") != RHS.npos || RHS.find("(") != RHS.npos || RHS.find(")") != RHS.npos || RHS.find("^") != RHS.npos)
-	{
+	{      
 		Matrix* temp = new Matrix;
 		*temp=multiOpHandling(RHS, storedMatrices, systemCommands);
 		storedMatrices.push_back(*temp);
