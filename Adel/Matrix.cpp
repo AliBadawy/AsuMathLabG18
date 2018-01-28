@@ -273,7 +273,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 
 	string operationsString = "+*/^;";
 	int currentRow = 0, currentCol = 0;
-	
+
 
 	for(int i=0;i<matrixString.length();i++)
 	{
@@ -359,7 +359,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 				if (matrixString[k] == ']')counter3--;
 				k++;
 			}
-			
+
 			Matrix x("noname", temp, storedMatrices, systemCommands);
 			numb_elements += x.rows * x.columns;
 
@@ -388,7 +388,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 				k++;
 				if(matrixString[k-1]=='(')
 				{
-					
+
 					while(matrixString[k-1]!=')')
 					{
 						temp+=matrixString[k];
@@ -470,7 +470,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 					multi_op_flag = 1;
 					break;
 				}
-			
+
 			}
 
 			if (multi_op_flag)
@@ -530,7 +530,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 				}
 				else
 				{
-					Matrix x(stod(temp));
+					Matrix x(strtod(temp.c_str() , NULL));
 					numb_elements += 1;
 
 					this->addMatrixToMatrix(x, currentRow, currentCol);
