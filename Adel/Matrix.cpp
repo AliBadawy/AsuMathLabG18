@@ -338,14 +338,75 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 
 
 			int multi_op_flag = 0;
-
+			string multioperationsString = "+-/*^'";
 			for (int j = 0; j<temp.length(); j++)
 			{
-				if (operationsString.find(temp[j]) != std::string::npos)
+				if (multioperationsString.find(temp[j]) != std::string::npos)
 				{
 					multi_op_flag = 1;
 					break;
 				}
+				else if(temp.find("inv(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("sin(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("cos(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("tan(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("asin(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("acos(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("atan(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("sqrt(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("rand(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("eye(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("zeros(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+				else if(temp.find("ones(")!=std::string::npos)
+				{
+					multi_op_flag = 1;
+					break;
+				}
+			
 			}
 
 			if (multi_op_flag)
@@ -2155,7 +2216,7 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 		string op;
 		int opIndex;
 		vector<string> operands(2);
-		vector<int> operandIndeces;//****************************************************************************error resolved by adel*****
+		vector<int> operandIndeces   ;//****************************************************************************error resolved by adel*****
 		operandIndeces.push_back(-1);
 		operandIndeces.push_back(-1);
 		bool timesDivideDetect = false;
@@ -2276,8 +2337,12 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 			if (*e != 0) throw("invalid number.");
 			else *parameter2 = value;
 		}
-		else *parameter2 = storedMatrices[operandIndeces[1]];
-
+		
+		else {cout<<"operandIndeces[1] = "<<operandIndeces[1]<<endl;
+		
+		
+		*parameter2 = storedMatrices[operandIndeces[1]];}
+		
 
 		if (op == "+") *temp = *parameter1 + *parameter2;
 		else if (op == "-") *temp = *parameter1 - *parameter2;
