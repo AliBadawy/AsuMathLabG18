@@ -328,7 +328,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 		else
 		{
 			int k = i;
-			while ((matrixString[k] != ' ' && matrixString[k] != ',' && matrixString[k] != ';' && matrixString[k] != '\n'))
+			while ((matrixString[k] != ' ' && matrixString[k] != ',' && matrixString[k] != ';' && matrixString[k] != '\n' )  )
 			{
 				temp += matrixString[k];
 				k++;
