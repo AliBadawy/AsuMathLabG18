@@ -332,6 +332,16 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 			{
 				temp += matrixString[k];
 				k++;
+				if(matrixString[k-1]=='(')
+				{
+					
+					while(matrixString[k-1]!=')')
+					{
+						temp+=matrixString[k];
+						k++;
+					}
+				}
+
 				if (k == matrixString.length())break;
 			}
 
@@ -2338,7 +2348,7 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 			else *parameter2 = value;
 		}
 		
-		else {cout<<"operandIndeces[1] = "<<operandIndeces[1]<<endl;
+		else {//cout<<"operandIndeces[1] = "<<operandIndeces[1]<<endl;
 		
 		
 		*parameter2 = storedMatrices[operandIndeces[1]];}
