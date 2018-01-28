@@ -286,7 +286,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 		{
 			while(matrixString[i+1]==' ')matrixString.erase(i+1,1);
 			while(matrixString[i-1]==' '){matrixString.erase(i-1,1);i--;}
-			if()
+			if(matrixString[i] == ';')if(matrixString[i+1] == ';' )throw("invalid exepression(;;)");
 		}
 		else if(matrixString[i]=='\'')
 		{
