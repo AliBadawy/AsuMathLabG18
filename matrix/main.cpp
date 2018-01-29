@@ -26,6 +26,7 @@ using namespace std;
 void inputHandling(string, vector<Matrix>&, vector<string>&);
 
 
+
 struct operators
 {
 	int pos;
@@ -120,7 +121,7 @@ int main(int argv, char* argc[])
 						if (commandLine.find_first_not_of(" \n\r") != commandLine.npos) {
 							inputHandling(commandLine, storedMatrices, systemCommands);
 							cout << endl;
-						}
+                        }
 						else {
 							continue;
 						}
@@ -217,7 +218,7 @@ int main(int argv, char* argc[])
 					if (commandLine.find_first_not_of(" \n\r") != commandLine.npos) {
 						inputHandling(commandLine, storedMatrices, systemCommands);
 						cout << endl;
-					}
+                    }
 					else continue;
 				}
 			}
@@ -304,7 +305,7 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 
 	/*****************END OPERATIONS********************************/
 
-	for (int ii = 0; ii<input.length(); ii++)
+	for (size_t ii = 0; ii<input.length(); ii++)
 	{
 		if (input[ii] == '=')
 		{
@@ -330,7 +331,7 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 		Matrix inputAssignment(arrayOfLHS[0], input, storedMatrices, systemCommands);
 		if (arrayOfIndeces[0] == -1) {
 			storedMatrices.push_back(inputAssignment);
-		}
+        }
 		else {
 			storedMatrices[arrayOfIndeces[0]] = inputAssignment;
 		}
@@ -346,12 +347,16 @@ void inputHandling(string input, vector<Matrix>& storedMatrices, vector<string>&
 			}
 		}
 		if (print) inputAssignment.printMatrix(true, num_equals, arrayOfLHS);
+
 		delete arrayOfIndeces;
 	}
 
 
-	else if (RHS.find("+") != RHS.npos || RHS.find("-") != RHS.npos && (RHS.find("-")>0 || (RHS.find("-") == 0 && RHS.find_first_not_of(numbers) != RHS.npos) || (RHS.find("-") == 0 && RHS.find_first_of(alphabets) == RHS.npos && RHS.find_last_of("+-/") != RHS.npos && RHS.find_last_of("+-/")>1))
-		|| RHS.find("*") != RHS.npos || RHS.find("/") != RHS.npos || RHS.find("inv") != RHS.npos || RHS.find("'") != RHS.npos || RHS.find("`") != RHS.npos || RHS.find("det") != RHS.npos || RHS.find("(") != RHS.npos || RHS.find(")") != RHS.npos || RHS.find("^") != RHS.npos)
+	else if ( ( RHS.find("+") != RHS.npos )
+                || ( (RHS.find("-") != RHS.npos) && (RHS.find("-")>0 || (RHS.find("-") == 0 && RHS.find_first_not_of(numbers) != RHS.npos) || (RHS.find("-") == 0 && RHS.find_first_of(alphabets) == RHS.npos && RHS.find_last_of("+-/") != RHS.npos && RHS.find_last_of("+-/")>1)) )
+                || ( RHS.find("*") != RHS.npos ) || ( RHS.find("/") != RHS.npos )
+                || ( RHS.find("inv") != RHS.npos ) || ( RHS.find("'") != RHS.npos ) || ( RHS.find("`") != RHS.npos )
+                || ( RHS.find("det") != RHS.npos ) || ( RHS.find("(") != RHS.npos  )|| ( RHS.find(")") != RHS.npos ) || ( RHS.find("^") != RHS.npos) )
 	{
 		Matrix* temp = new Matrix;
 		*temp = Matrix::multiOpHandling(RHS, storedMatrices, systemCommands, print);

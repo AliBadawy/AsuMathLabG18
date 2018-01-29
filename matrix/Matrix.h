@@ -76,7 +76,7 @@ public:
 
 	static Matrix* powerMatrix(Matrix &, Matrix&);
 
-	void addMatrixToMatrix(Matrix & x, int r, int c);
+	void addMatrixToMatrix(Matrix & x, unsigned int r, unsigned int c);
 
 	Matrix* sqrtMatrix();
 	Matrix* negative();
@@ -108,12 +108,11 @@ public:
 
 	bool is_square();
 	bool is_scalar();
+
+
 private:
 	void setElement(unsigned int, unsigned int, double);
-	/*void swapCols(unsigned int, unsigned int);
-	void swapRows(unsigned int, unsigned int);
-	double handleZeroPivot();  //return the number of swaps done as well, to change the sign of the determinant
-	static void eliminateFloats(double&);*/
+
 };
 
 #endif

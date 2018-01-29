@@ -4,11 +4,11 @@
 
 //Default Constructor:
 Matrix::Matrix()
-	:notMatrix(false), rows(0), columns(0), num(0), name(""), twoDArray(NULL) {}
+	:notMatrix(false), rows(0), columns(0), num(0), name(""), twoDArray(NULL){}
 
 //Scalar Constructor:
 Matrix::Matrix(double value)
-	: notMatrix(true), rows(0), columns(0), num(value), name(""), twoDArray(NULL) {}
+	: notMatrix(true), rows(0), columns(0), num(value), name(""), twoDArray(NULL){}
 
 //Size Constructor:
 Matrix::Matrix(unsigned int rows, unsigned int cols)
@@ -91,7 +91,7 @@ Matrix::Matrix(string name, string matrixString)
 	inputElements.clear();
 }
 
-void Matrix::addMatrixToMatrix(Matrix &x, int r, int c)
+void Matrix::addMatrixToMatrix(Matrix &x, unsigned int r, unsigned int c)
 {
 
 	if (x.notMatrix)
@@ -111,13 +111,13 @@ void Matrix::addMatrixToMatrix(Matrix &x, int r, int c)
 		this->columns = x.columns;
 		this->notMatrix = false;
 		this->twoDArray = new double*[this->rows];
-		for (int i = 0; i<this->rows; i++)
+		for (unsigned int i = 0; i<this->rows; i++)
 		{
 			this->twoDArray[i] = new double[this->columns];
 		}
 
-		for (int i = 0; i<this->rows; i++)
-			for (int j = 0; j<this->columns; j++)
+		for (unsigned int i = 0; i<this->rows; i++)
+			for (unsigned int j = 0; j<this->columns; j++)
 			{
 				this->twoDArray[i][j] = x.twoDArray[i][j];
 			}
@@ -126,11 +126,11 @@ void Matrix::addMatrixToMatrix(Matrix &x, int r, int c)
 
 	else if (this->rows >= r + x.rows && this->columns >= c + x.columns)
 	{
-		int a = r, b = c;
-		for (int i = 0; i<x.rows; i++)
+		unsigned int a = r, b = c;
+		for (unsigned int i = 0; i<x.rows; i++)
 		{
 			b = c;
-			for (int j = 0; j<x.columns; j++)
+			for (unsigned int j = 0; j<x.columns; j++)
 			{
 				this->twoDArray[a][b] = x.twoDArray[i][j];
 				b++;
@@ -143,26 +143,26 @@ void Matrix::addMatrixToMatrix(Matrix &x, int r, int c)
 	{
 		Matrix temp(*this);
 
-		for (int i = 0; i<this->rows; i++)
+		for (unsigned int i = 0; i<this->rows; i++)
 			delete[] this->twoDArray[i];
 		delete[]this->twoDArray;
 
 		this->rows = r + x.rows;
 
 		this->twoDArray = new double*[this->rows];
-		for (int i = 0; i<this->rows; i++)
+		for (unsigned int i = 0; i<this->rows; i++)
 			this->twoDArray[i] = new double[this->columns];
 
-		for (int i = 0; i<temp.rows; i++)
-			for (int j = 0; j<temp.columns; j++)
+		for (unsigned int i = 0; i<temp.rows; i++)
+			for (unsigned int j = 0; j<temp.columns; j++)
 			{
 				this->twoDArray[i][j] = temp.twoDArray[i][j];
 			}
-		int a = r, b = c;
-		for (int i = 0; i<x.rows; i++)
+		unsigned int a = r, b = c;
+		for (unsigned int i = 0; i<x.rows; i++)
 		{
 			b = c;
-			for (int j = 0; j<x.columns; j++)
+			for (unsigned int j = 0; j<x.columns; j++)
 			{
 				this->twoDArray[a][b] = x.twoDArray[i][j];
 				b++;
@@ -174,26 +174,26 @@ void Matrix::addMatrixToMatrix(Matrix &x, int r, int c)
 	{
 		Matrix temp(*this);
 
-		for (int i = 0; i<this->rows; i++)
+		for (unsigned int i = 0; i<this->rows; i++)
 			delete[] this->twoDArray[i];
 		delete[]this->twoDArray;
 
 		this->columns = c + x.columns;
 
 		this->twoDArray = new double*[this->rows];
-		for (int i = 0; i<this->rows; i++)
+		for (unsigned int i = 0; i<this->rows; i++)
 			this->twoDArray[i] = new double[this->columns];
 
-		for (int i = 0; i<temp.rows; i++)
-			for (int j = 0; j<temp.columns; j++)
+		for (unsigned int i = 0; i<temp.rows; i++)
+			for (unsigned int j = 0; j<temp.columns; j++)
 			{
 				this->twoDArray[i][j] = temp.twoDArray[i][j];
 			}
-		int a = r, b = c;
-		for (int i = 0; i<x.rows; i++)
+		unsigned int a = r, b = c;
+		for (unsigned int i = 0; i<x.rows; i++)
 		{
 			b = c;
-			for (int j = 0; j<x.columns; j++)
+			for (unsigned int j = 0; j<x.columns; j++)
 			{
 				this->twoDArray[a][b] = x.twoDArray[i][j];
 				b++;
@@ -210,18 +210,13 @@ void Matrix::addMatrixToMatrix(Matrix &x, int r, int c)
 
 
 Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices, vector<string>& systemCommands)
-{
+:notMatrix(false) , rows(0),columns(0),num(0),name(name),twoDArray(NULL)
+    {
 	if (name.find_first_not_of(alphabets) == 0) throw("Variable name is not valid.");
-	this->name = name;
-	this->columns = 0;
-	this->rows = 0;
-	this->num = 0;
-	this->notMatrix = false;
-	this->twoDArray = NULL;
 
-	int numbOfColsinFirstRow = 0;
-	int tempNumCols = 0;
-	int numb_elements = 0;
+//	unsigned int numbOfColsinFirstRow = 0;
+//	unsigned int tempNumCols = 0;
+	unsigned int numb_elements = 0;
 
 	while (matrixString[matrixString.length() - 1] == ' ')matrixString.erase(matrixString.length() - 1, 1); //remove spaces from the end of input
 
@@ -240,7 +235,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 	//handling brackets errors
 	int counter1 = 0, counter2 = 0;
 
-	for (int i = 0; i<matrixString.length(); i++)
+	for (size_t i = 0; i<matrixString.length(); i++)
 	{
 		if (matrixString[i] == '(')
 			counter1++;
@@ -252,7 +247,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 
 	counter1 = 0; counter2 = 0;
 
-	for (int i = 0; i<matrixString.length(); i++)
+	for (size_t i = 0; i<matrixString.length(); i++)
 	{
 		if (matrixString[i] == '[')
 			counter1++;
@@ -275,7 +270,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 	int currentRow = 0, currentCol = 0;
 
 
-	for (int i = 0; i<matrixString.length(); i++)
+	for (size_t i = 0; i<matrixString.length(); i++)
 	{
 		if (matrixString[i] == '.')
 		{
@@ -331,7 +326,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 
 	string alphabetsString = "abcdefghijklmnopqrstuvwxyz_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-	for (int i = 0; i<matrixString.length(); i++)
+	for (size_t i = 0; i<matrixString.length(); i++)
 	{
 		string temp = "";
 		if (matrixString[i] == ',' || matrixString[i] == ' ')
@@ -381,7 +376,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 		}
 		else
 		{
-			int k = i;
+			size_t k = i;
 			while ((matrixString[k] != ' ' && matrixString[k] != ',' && matrixString[k] != ';' && matrixString[k] != '\n'))
 			{
 				temp += matrixString[k];
@@ -403,7 +398,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 
 			int multi_op_flag = 0;
 			string multioperationsString = "+-/*^'";
-			for (int j = 0; j<temp.length(); j++)
+			for (size_t j = 0; j<temp.length(); j++)
 			{
 				if (multioperationsString.find(temp[j]) != std::string::npos)
 				{
@@ -502,7 +497,7 @@ Matrix::Matrix(string name, string matrixString, vector<Matrix> & storedMatrices
 			{
 				if (alphabetsString.find(temp[0]) != std::string::npos)
 				{
-					for (int j = 0; j<storedMatrices.size(); j++)
+					for (size_t j = 0; j<storedMatrices.size(); j++)
 					{
 						if (storedMatrices[j].name == temp)
 						{
@@ -1273,8 +1268,8 @@ Matrix* Matrix::sinMatrix() {
 
 
 Matrix* Matrix::powerMatrix(Matrix &M, Matrix&P) {
+    Matrix* temp = new Matrix;
 	if (!M.notMatrix && P.notMatrix) {  //matrix .^ scalar
-		Matrix* temp = new Matrix;
 		temp->setSize(M.rows, M.columns);
 		for (size_t i = 0; i<temp->rows; i++)
 			for (size_t j = 0; j<(temp->columns); j++)
@@ -1283,9 +1278,7 @@ Matrix* Matrix::powerMatrix(Matrix &M, Matrix&P) {
 	}
 	else if (M.notMatrix && P.notMatrix) {				//matrix .^ matrix
 		if (M.rows != P.rows || M.columns != P.columns) throw("Dimensions Error.");
-		Matrix* temp = new Matrix;
 		temp->setNum(pow(M.num, P.num));
-		return temp;
 	}
 	else if (M.notMatrix && !P.notMatrix) //scalar .^ matrix
 	{
@@ -1294,8 +1287,8 @@ Matrix* Matrix::powerMatrix(Matrix &M, Matrix&P) {
 		for (size_t i = 0; i<temp->rows; i++)
 			for (size_t j = 0; j<(temp->columns); j++)
 				temp->twoDArray[i][j] = pow(M.num, P.twoDArray[i][j]);
-		return temp;
 	}
+	return temp;
 }
 
 
@@ -1743,7 +1736,7 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 		{
 			if (RHS[i + 1] == '+' || RHS[i + 1] == '-' || RHS[i + 1] == '/' || RHS[i + 1] == '*')
 			{
-				currentOp.op = RHS[i, i + 1];
+				currentOp.op = RHS[i + 1];
 				currentOp.pos = i;
 				ops.push_back(currentOp);
 				i++;
@@ -1763,8 +1756,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 	//special functions
 	while (RHS.find("eye(") != RHS.npos)
 	{
-		int startPosition = RHS.find("eye(");
-		int endPosition = RHS.substr(startPosition).find(')') + startPosition;
+		size_t startPosition = RHS.find("eye(");
+		size_t endPosition = RHS.substr(startPosition).find(')') + startPosition;
 		if (endPosition == RHS.npos)throw("Error opened bracket without closure");
 		string insideBrackets = RHS.substr(startPosition + 4, endPosition - (startPosition + 4));
 		if (insideBrackets.find_first_not_of("0123456789,") != insideBrackets.npos)throw("invalid special function format (eye)");
@@ -1785,8 +1778,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 	}
 	while (RHS.find("zeros(") != RHS.npos)
 	{
-		int startPosition = RHS.find("zeros(");
-		int endPosition = RHS.substr(startPosition).find(')') + startPosition;
+		size_t startPosition = RHS.find("zeros(");
+		size_t endPosition = RHS.substr(startPosition).find(')') + startPosition;
 		if (endPosition == RHS.npos)throw("Error opened bracket without closure");
 		string insideBrackets = RHS.substr(startPosition + 6, endPosition - (startPosition + 6));
 		if (insideBrackets.find_first_not_of("0123456789,") != insideBrackets.npos)throw("invalid special function format (zeros)");
@@ -1807,8 +1800,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 	}
 	while (RHS.find("ones(") != RHS.npos)
 	{
-		int startPosition = RHS.find("ones(");
-		int endPosition = RHS.substr(startPosition).find(')') + startPosition;
+		size_t startPosition = RHS.find("ones(");
+		size_t endPosition = RHS.substr(startPosition).find(')') + startPosition;
 		if (endPosition == RHS.npos)throw("Error opened bracket without closure");
 		string insideBrackets = RHS.substr(startPosition + 5, endPosition - (startPosition + 5));
 		if (insideBrackets.find_first_not_of("0123456789,") != insideBrackets.npos)throw("invalid special function format (ones)");
@@ -1829,8 +1822,8 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 	}
 	while (RHS.find("rand(") != RHS.npos)
 	{
-		int startPosition = RHS.find("rand(");
-		int endPosition = RHS.substr(startPosition).find(')') + startPosition;
+		size_t startPosition = RHS.find("rand(");
+		size_t endPosition = RHS.substr(startPosition).find(')') + startPosition;
 		if (endPosition == RHS.npos)throw("Error opened bracket without closure");
 		string insideBrackets = RHS.substr(startPosition + 5, endPosition - (startPosition + 5));
 		if (insideBrackets.find_first_not_of("0123456789,") != insideBrackets.npos)throw("invalid special function format (rand)");
@@ -1856,7 +1849,7 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 	//Brackets (including the det, inv and trig functions brackets)
 	while (openedBracketsNo > 0)
 	{
-		int openBIndex, closeBIndex;
+		size_t openBIndex, closeBIndex;
 		openBIndex = RHS.rfind('(');
 		closeBIndex = RHS.substr(openBIndex).find(')') + openBIndex;
 		if (closeBIndex == RHS.npos)throw("Error opened bracket without closure");
@@ -1876,9 +1869,9 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 		if (openBIndex >= 4)
 		{
 			/* INVERSE TRIGONOMETRIC */
-			if (RHS[openBIndex - 1] == 'n' && RHS[openBIndex - 2] == 'i' && RHS[openBIndex - 3] == 's' && RHS[openBIndex - 4] == 'a'
-				|| RHS[openBIndex - 1] == 's' && RHS[openBIndex - 2] == 'o' && RHS[openBIndex - 3] == 'c' && RHS[openBIndex - 4] == 'a'
-				|| RHS[openBIndex - 1] == 'n' && RHS[openBIndex - 2] == 'a' && RHS[openBIndex - 3] == 't' && RHS[openBIndex - 4] == 'a')
+			if ( ( ( RHS[openBIndex - 1] == 'n' ) && ( RHS[openBIndex - 2] == 'i' ) && ( RHS[openBIndex - 3] == 's' ) && ( RHS[openBIndex - 4] == 'a' ) )
+                || ( ( RHS[openBIndex - 1] == 's' ) && ( RHS[openBIndex - 2] == 'o' ) && ( RHS[openBIndex - 3] == 'c' ) && ( RHS[openBIndex - 4] == 'a' ) )
+                 || ( ( RHS[openBIndex - 1] == 'n' ) && ( RHS[openBIndex - 2] == 'a' ) && ( RHS[openBIndex - 3] == 't' ) && ( RHS[openBIndex - 4] == 'a' ) ) )
 			{
 				oneOperandOp = true;
 				inverseTrigDet = true;
@@ -2019,9 +2012,9 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 
 
 			//TRIG
-			else if (RHS[openBIndex - 1] == 'n' && RHS[openBIndex - 2] == 'i' && RHS[openBIndex - 3] == 's'
-				|| RHS[openBIndex - 1] == 's' && RHS[openBIndex - 2] == 'o' && RHS[openBIndex - 3] == 'c'
-				|| RHS[openBIndex - 1] == 'n' && RHS[openBIndex - 2] == 'a' && RHS[openBIndex - 3] == 't')
+			else if ( ( RHS[openBIndex - 1] == 'n' && RHS[openBIndex - 2] == 'i' && RHS[openBIndex - 3] == 's' )
+                        || ( RHS[openBIndex - 1] == 's' && RHS[openBIndex - 2] == 'o' && RHS[openBIndex - 3] == 'c' )
+                        || ( RHS[openBIndex - 1] == 'n' && RHS[openBIndex - 2] == 'a' && RHS[openBIndex - 3] == 't' ) )
 			{
 				if (!inverseTrigDet)
 				{
@@ -2316,7 +2309,7 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 				else throw("error: not supported scalar^matrix");
 			}
 		}
-		
+
 
 		RHS.erase(opIndex - operands[0].length(), operands[0].length() + operands[1].length() + op.length());
 		RHS.insert(opIndex - operands[0].length(), temporaryName);
@@ -2509,7 +2502,6 @@ Matrix Matrix::multiOpHandling(string RHS, vector<Matrix>& storedMatrices, vecto
 			return temp;
 		}
 	}
-
 	return *temp;
 
 }
